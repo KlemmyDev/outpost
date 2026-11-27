@@ -174,6 +174,22 @@ the radio through to the container and set that up:
 bash proxmox-lxc.sh --usb 120
 ```
 
+## Power
+
+**Power** (off by default) reads your inverter through
+[WattsMyPower](https://github.com/KlemmyDev/WattsMyPower) (2026.11.2 or later),
+with a read-only API key: in WattsMyPower open **Settings › Developers**, make a
+key with live, history, forecast and system (and costs, if you like), then
+paste it with WattsMyPower's address into Outpost's Power page.
+
+- **Off-grid runtime:** how long the battery would keep the house going if the
+  grid went down now: at this rate, through a usual night, and hour by hour
+  through WattsMyPower's forecast of solar and home use.
+- Solar, home, battery and grid right now; today's cost and savings; the last
+  day or week; and the next two days.
+- Alerts when the grid goes down and comes back, and when the battery runs low
+  with no grid.
+
 ## Development
 
 Needs Node 24.

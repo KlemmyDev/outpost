@@ -2,6 +2,7 @@ import type { InternetStatus } from '#/features/internet/types'
 import type { LibraryStatus } from '#/features/library/types'
 import type { MapStatus } from '#/features/map/types'
 import type { MessagesStatus } from '#/features/messages/types'
+import type { PowerStatus } from '#/features/power/types'
 
 /** Shared between the server and the Overview UI. No Node imports. */
 
@@ -16,6 +17,7 @@ export interface WidgetData {
   library?: LibraryStatus | null
   map?: MapStatus | null
   messages?: MessagesStatus | null
+  power?: PowerStatus | null
 }
 
 export interface ServerStats {

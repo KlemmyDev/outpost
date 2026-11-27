@@ -2,6 +2,7 @@ import { getMonitor } from '#/features/internet/server'
 import { getLibrary } from '#/features/library/server'
 import { getMap } from '#/features/map/server'
 import { getMessages } from '#/features/messages/server'
+import { getPower } from '#/features/power/server'
 import type { WidgetData } from '#/platform/overview.types'
 import type { Platform } from './platform.server'
 
@@ -18,6 +19,7 @@ const LOADERS: Loaders = {
   library: async () => (await getLibrary()?.status()) ?? null,
   map: async () => (await getMap()?.status()) ?? null,
   messages: () => getMessages()?.widget() ?? null,
+  power: () => getPower()?.widget() ?? null,
 }
 
 export async function loadWidgets(p: Platform): Promise<WidgetData> {

@@ -3772,3 +3772,260 @@ a.row.lib-row-link:hover {
   color: var(--ironbark);
   font: 14px var(--font-ui);
 }
+
+/* ── Power ────────────────────────────────────────────────────────────── */
+
+.power-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.runtime-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px 32px;
+  padding: 28px;
+}
+
+.runtime-card.off {
+  border-color: var(--flare);
+  box-shadow: inset 0 0 0 1px var(--flare);
+}
+
+.runtime-main {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.runtime-big {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.runtime-facts {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.runtime-facts dt {
+  color: var(--stone);
+  font-size: 13px;
+}
+
+.runtime-facts dd {
+  margin: 2px 0 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.battery-gauge {
+  grid-row: 1;
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.battery-shell {
+  position: relative;
+  width: 56px;
+  height: 120px;
+  border: 3px solid var(--ironbark);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--saltbush);
+}
+
+.battery-shell::before {
+  content: '';
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  width: 20px;
+  height: 6px;
+  border-radius: 3px 3px 0 0;
+  background: var(--ironbark);
+  transform: translateX(-50%);
+}
+
+.battery-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--eucalypt-ink);
+  transition: height 0.8s ease-out;
+}
+
+.battery-fill.low {
+  background: var(--flare);
+}
+
+.battery-fill.charging {
+  background-image: linear-gradient(0deg, transparent 0, rgba(255, 255, 255, 0.35) 50%, transparent 100%);
+  background-size: 100% 60px;
+  background-repeat: no-repeat;
+  animation: battery-charge 1.8s linear infinite;
+}
+
+@keyframes battery-charge {
+  from {
+    background-position: 0 120px;
+  }
+  to {
+    background-position: 0 -60px;
+  }
+}
+
+.battery-reserve {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 2px dashed var(--ironbark);
+  opacity: 0.6;
+}
+
+.battery-read {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.battery-read strong {
+  font-family: var(--font-display);
+  font-size: 34px;
+  letter-spacing: -0.02em;
+}
+
+.battery-read .muted {
+  font-size: 13px;
+}
+
+.power-costs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.power-costs > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.power-costs strong {
+  font-family: var(--font-display);
+  font-size: 26px;
+  letter-spacing: -0.02em;
+}
+
+.power-costs .muted {
+  font-size: 13px;
+}
+
+.fc-days {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.fc-day {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--saltbush);
+}
+
+.fc-day strong {
+  font-size: 17px;
+}
+
+.fc-day .muted {
+  font-size: 13px;
+}
+
+.power-setup {
+  max-width: 720px;
+  gap: 16px;
+  padding: 32px;
+}
+
+.power-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding-left: 20px;
+  line-height: 1.5;
+}
+
+.power-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.power-form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.power-form .field input {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #d6d1c4;
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ironbark);
+  font: 15px var(--font-mono);
+}
+
+.power-settings-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.power-settings-toggle .muted {
+  font-size: 13px;
+}
+
+@media (max-width: 640px) {
+  .runtime-card {
+    grid-template-columns: 1fr;
+  }
+
+  .battery-gauge {
+    grid-row: auto;
+    grid-column: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .battery-fill.charging {
+    animation: none;
+  }
+}

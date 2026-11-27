@@ -8,6 +8,15 @@ CalVer (`YYYY.M.D`).
 
 ### Added
 
+- Power, from WattsMyPower's developer API with a read-only key: off-grid
+  runtime (at this rate, through a usual night, and hour by hour through the
+  forecast's solar and home use, charging from spare solar and stopping at the
+  reserve), a battery gauge with its reserve, solar, home, battery and grid now,
+  today's cost and savings, the last day or week, and the next two days.
+- Alerts when the grid goes down (with how long the battery should last), when
+  it's back, and when the battery falls to a set level with no grid.
+- The Power card on the Overview shows the battery, solar and home, and
+  off-grid runtime.
 - Parallel downloads in the Library: two at once by default, adjustable from 1
   to 4 on the Sources screen, so a small book or the map isn't stuck behind
   Wikipedia. Each download checks it leaves room for the others.
