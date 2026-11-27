@@ -133,6 +133,26 @@ introductions only.
   and night themes, five text sizes, saved pages and history. **Original
   layout** opens the page as the book made it, sandboxed.
 
+## Emergency
+
+**Emergency** follows official warnings for your state: the Bureau of
+Meteorology's weather and flood warnings everywhere, and fire and emergency
+warnings near home from the Queensland Fire Department, NSW Rural Fire Service
+and VicEmergency (measured from Home on the Map). It checks every 10 minutes
+while there's internet, keeps the last warnings for when there isn't, and
+notifies for new Watch and Act and Emergency Warnings near home and severe
+weather.
+
+- **How the house is holding up:** one board for the internet, power and the
+  battery, the radio, the first aid guides, Home on the map and the kit.
+- **Plan:** who to call (with medical details), where to meet, how to turn off
+  power, gas and water, pets and insurance. Shared by everyone at home, and
+  printable for the fridge.
+- **Kit:** Red Cross and Get Ready Queensland's emergency kit as a checklist,
+  with expiry dates and reminders.
+
+WA, SA, Tasmania and the NT get BOM's warnings only for now.
+
 ## First aid
 
 **First aid** puts 000, Poisons Information (13 11 26) and healthdirect at the

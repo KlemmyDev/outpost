@@ -8,6 +8,17 @@ CalVer (`YYYY.M.D`).
 
 ### Added
 
+- Emergency: official warnings near home from BOM (every state), the
+  Queensland Fire Department, NSW RFS and VicEmergency, with Australian Warning
+  System levels, distance from Home, and notifications for new Watch and Act
+  and Emergency Warnings and severe weather. The last warnings stay when the
+  internet goes.
+- A status board of the internet, power and battery, radio, first aid guides,
+  Home on the map and the emergency kit.
+- A household emergency plan (people and medical details, meeting places,
+  turning off power, gas and water, pets, insurance), shared and printable.
+- An emergency kit checklist with expiry dates and reminders.
+- The Emergency card on the Overview shows warnings near home and the kit.
 - First aid: emergency numbers on every page, short steps for 22 emergencies
   grouped and searchable by everyday words, each with when to call 000, what
   not to do, the full ANZCOR guideline and WikiMed. One button saves all the

@@ -4501,3 +4501,358 @@ a.row.lib-row-link:hover {
     animation: none;
   }
 }
+
+/* ── Emergency ────────────────────────────────────────────────────────── */
+
+.em-page {
+  gap: 22px;
+}
+
+.em-tabs {
+  align-self: flex-start;
+}
+
+.em-sub {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.em-warnings {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.em-warning {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--saltbush);
+}
+
+.em-level {
+  flex: none;
+  min-width: 118px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font: 700 11px var(--font-mono);
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* The Australian Warning System's colours, always with the words. */
+.em-warning.ew .em-level {
+  background: #d32f2f;
+  color: #fff;
+}
+
+.em-warning.wa .em-level {
+  background: #f57c00;
+  color: #1f1300;
+}
+
+.em-warning.adv .em-level {
+  background: #fdd835;
+  color: #2a2300;
+}
+
+.em-warning.wx .em-level {
+  background: var(--dusk);
+  color: #fff;
+}
+
+.em-warning.ew {
+  box-shadow: inset 0 0 0 2px #d32f2f;
+}
+
+.em-w-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.em-w-body .muted {
+  font-size: 13px;
+}
+
+.em-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 10px;
+}
+
+.em-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--paper);
+  text-decoration: none;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+a.em-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(31, 36, 33, 0.08);
+}
+
+.em-tile.bad {
+  border-color: var(--flare);
+}
+
+.em-tile-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.em-tile-label {
+  color: var(--stone);
+  font-size: 13px;
+}
+
+.em-tile strong {
+  font-size: 19px;
+}
+
+.em-tile .muted {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.em-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--muted-dot);
+}
+
+.em-dot.good {
+  background: var(--eucalypt);
+}
+
+.em-dot.warn {
+  background: var(--ochre);
+}
+
+.em-dot.bad {
+  background: var(--flare);
+}
+
+.em-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.em-settings .field,
+.em-plan .field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.em-settings select,
+.em-plan input,
+.em-plan select,
+.em-plan textarea,
+.em-kit-add input {
+  min-height: 42px;
+  padding: 8px 12px;
+  border: 1px solid #d6d1c4;
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ironbark);
+  font: 15px var(--font-ui);
+}
+
+.em-settings select {
+  max-width: 320px;
+}
+
+.em-plan {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.em-plan-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.em-plan-head p {
+  flex: 1;
+  min-width: 260px;
+}
+
+.em-people {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.em-person {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--saltbush);
+}
+
+.em-person .wide {
+  grid-column: 1 / -1;
+}
+
+.em-person .link-btn {
+  justify-self: start;
+}
+
+.em-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.em-kit {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.em-kit li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.em-kit-main {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.em-kit-main input {
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  accent-color: var(--eucalypt-ink);
+}
+
+.em-kit-main span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.em-kit-main .muted {
+  font-size: 13px;
+}
+
+.em-kit li.have strong {
+  color: var(--eucalypt-ink);
+}
+
+.em-kit li.soon {
+  background: rgba(194, 101, 42, 0.07);
+}
+
+.em-kit-date input {
+  min-height: 36px;
+  padding: 0 8px;
+  border: 1px solid #d6d1c4;
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--stone);
+  font: 13px var(--font-ui);
+}
+
+.em-kit-add {
+  display: flex;
+  gap: 8px;
+}
+
+.em-kit-add input {
+  flex: 1;
+}
+
+.summary-card.dark.alarm {
+  box-shadow: inset 0 0 0 3px #d32f2f;
+}
+
+.print-only {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .em-warning {
+    flex-wrap: wrap;
+  }
+
+  .em-person {
+    grid-template-columns: 1fr;
+  }
+
+  .em-kit li {
+    flex-wrap: wrap;
+  }
+}
+
+/* Printing the plan: just the plan, black on white. */
+@media print {
+  .shell-header,
+  .aid-call,
+  .aid-head,
+  .em-tabs,
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .page {
+    padding: 0;
+  }
+
+  .em-plan .card {
+    break-inside: avoid;
+    border: 1px solid #999;
+  }
+
+  .em-plan input,
+  .em-plan select,
+  .em-plan textarea {
+    border: 0;
+    border-bottom: 1px solid #999;
+    border-radius: 0;
+    padding-left: 0;
+  }
+}

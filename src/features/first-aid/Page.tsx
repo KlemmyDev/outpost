@@ -2,30 +2,11 @@ import { Link, useRouter } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { ReadLink } from '#/features/library/ui/ReadLink'
 import { GUIDES_BOOK } from '#/features/library/guides/catalog'
+import { CallBar } from '#/platform/ui/CallBar'
 import { CprCoach } from './CprCoach'
 import { getFirstAid, saveFirstAidGuides } from './first-aid.functions'
 import { searchTopics, TOPIC_GROUPS, TOPICS, type Topic } from './topics'
 import type { FirstAidData } from './types'
-
-/** Numbers for the top of every First aid page. Tappable on phones. */
-export function CallBar() {
-  return (
-    <div className="aid-call" role="region" aria-label="Emergency numbers">
-      <a className="aid-000" href="tel:000">
-        <span className="aid-000-n">000</span>
-        <span>Ambulance, fire, police</span>
-      </a>
-      <a className="aid-num" href="tel:131126">
-        <strong>13 11 26</strong>
-        <span>Poisons Information</span>
-      </a>
-      <a className="aid-num" href="tel:1800022222">
-        <strong>1800 022 222</strong>
-        <span>healthdirect nurse</span>
-      </a>
-    </div>
-  )
-}
 
 /** Saving the ANZCOR guides the topics link to, while the internet's up. */
 export function useGuides(initial: FirstAidData) {
