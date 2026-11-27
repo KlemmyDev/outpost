@@ -337,6 +337,36 @@ describe('downloads', () => {
     m.stop()
   })
 
+  it('runs as many at once as allowed, and starts more when that goes up', async () => {
+    const s = store()
+    const lib = join(dir, 'library')
+    let running = 0
+    let peak = 0
+    const gates: (() => void)[] = []
+    const slow = (async (input: string | URL | Request) => {
+      const u = String(input)
+      if (u.endsWith('.sha256')) return new Response('nope', { status: 404 })
+      running++
+      peak = Math.max(peak, running)
+      await new Promise<void>((r) => gates.push(r))
+      running--
+      return new Response(body, { headers: { 'content-length': String(body.length) } })
+    }) as typeof fetch
+    const m = new DownloadManager(s, lib, ctx, slow, 2)
+    await m.start()
+    const ids = []
+    for (const n of ['a', 'b', 'c']) ids.push((await m.add({ ...entry, contentId: `test_${n}_2026-10`, url: `https://download.kiwix.org/zim/test/test_${n}_2026-10.zim` })).id)
+    await until(() => running === 2)
+    expect(s.download(ids[2]!)!.state).toBe('queued')
+    m.setParallel(3)
+    await until(() => running === 3)
+    expect(peak).toBe(3)
+    while (gates.length) gates.shift()!()
+    await until(() => ids.every((id) => s.download(id)!.state === 'done'))
+    expect(m.setParallel(9)).toBe(4)
+    m.stop()
+  })
+
   it('puts interrupted downloads back in the queue after a restart', () => {
     const s = store()
     const d: Download = s.addDownload({ ...entry, replaces: null })

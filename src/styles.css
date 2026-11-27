@@ -3756,3 +3756,19 @@ a.row.lib-row-link:hover {
     animation: none;
   }
 }
+
+.dl-parallel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dl-parallel select {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid #d6d1c4;
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ironbark);
+  font: 14px var(--font-ui);
+}

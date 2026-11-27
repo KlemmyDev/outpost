@@ -14,7 +14,7 @@ const STATE_WORDS: Record<Download['state'], string> = {
 
 /** One download: its name, a progress bar, and how far and how fast it's going. */
 export function DownloadBar({ d, children }: { d: Download; children?: React.ReactNode }) {
-  const pct = d.state === 'verifying' ? Math.round((d.verified ?? 0) * 100) : d.sizeBytes > 0 ? Math.min(100, Math.round((d.bytes / d.sizeBytes) * 100)) : 0
+  const pct = d.state === 'done' ? 100 : d.state === 'verifying' ? Math.round((d.verified ?? 0) * 100) : d.sizeBytes > 0 ? Math.min(100, Math.round((d.bytes / d.sizeBytes) * 100)) : 0
   const left = d.bytesPerSec ? (d.sizeBytes - d.bytes) / d.bytesPerSec : null
   const detail =
     d.state === 'downloading'

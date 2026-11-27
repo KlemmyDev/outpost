@@ -172,6 +172,8 @@ export interface SourcesData {
   storage: StorageInfo | null
   /** Newer versions in the catalogue, by installed content id. */
   updates: Record<string, CatalogEntry>
+  /** How many downloads run at once. */
+  parallel: number
 }
 
 /** The Library's Overview card. */

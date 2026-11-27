@@ -2,7 +2,8 @@ import { createServerFn } from '@tanstack/react-start'
 import { getPlatform } from '#/platform/server/platform.server'
 import { cleanArticle } from './article.server'
 import { GUIDES_BOOK, GUIDES_TITLE, type GuidesData } from './guides/catalog'
-import { getLibraryReady } from './server'
+import { DEFAULT_PARALLEL } from './downloads.server'
+import { getLibraryReady, PARALLEL_KEY } from './server'
 import { isAppBook } from './types'
 
 const rawUrl = (contentId: string, path: string) => `/api/library/raw/${encodeURIComponent(contentId)}/${path.split('/').map(encodeURIComponent).join('/')}`
@@ -181,8 +182,16 @@ export const forgetHistory = createServerFn({ method: 'POST' })
 export const getSources = createServerFn({ method: 'GET' }).handler(async (): Promise<SourcesData> => {
   const library = await lib()
   const { online, books } = await library.booksOrOffline()
-  return { online, books, downloads: library.downloads.list(), storage: await library.downloads.storage(), updates: {} }
+  return { online, books, downloads: library.downloads.list(), storage: await library.downloads.storage(), updates: {}, parallel: library.downloads.getParallel() }
 })
+
+export const setParallelDownloads = createServerFn({ method: 'POST' })
+  .validator((d: { n: number }) => ({ n: typeof d?.n === 'number' ? d.n : DEFAULT_PARALLEL }))
+  .handler(async ({ data }) => {
+    const n = (await lib()).downloads.setParallel(data.n)
+    getPlatform().settings.set(PARALLEL_KEY, String(n))
+    return { parallel: n }
+  })
 
 export const getDownloads = createServerFn({ method: 'GET' }).handler(async () => {
   const library = await lib()
@@ -190,7 +199,7 @@ export const getDownloads = createServerFn({ method: 'GET' }).handler(async () =
   // A finished download shows up as a book once Kiwix has picked it up.
   if (downloads.some((d) => d.state === 'done')) library.forgetBooks()
   const { online, books } = await library.booksOrOffline()
-  return { downloads, storage: await library.downloads.storage(), books, online }
+  return { downloads, storage: await library.downloads.storage(), books, online, parallel: library.downloads.getParallel() }
 })
 
 /** Newer versions of installed books. Needs the internet; quietly empty without it. */

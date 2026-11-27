@@ -3,7 +3,7 @@ import { loadConfig } from '#/platform/server/config.server'
 import { getPlatform } from '#/platform/server/platform.server'
 import type { FeatureServer } from '#/platform/server/runtime.server'
 import { Catalog } from './catalog.server'
-import { DownloadManager } from './downloads.server'
+import { DEFAULT_PARALLEL, DownloadManager } from './downloads.server'
 import { GuideManager } from './guides/guides.server'
 import { KiwixClient } from './kiwix.server'
 import { LibraryStore, MIGRATIONS } from './store.server'
@@ -90,6 +90,9 @@ export class Library {
   }
 }
 
+/** Settings key for how many downloads run at once. */
+export const PARALLEL_KEY = 'library.parallel'
+
 let library: Library | null = null
 
 /** The running Library, or null while the feature is switched off. */
@@ -108,7 +111,7 @@ export const server: FeatureServer = {
   async start(ctx) {
     const dir = join(loadConfig().dataDir, 'library')
     const store = new LibraryStore(ctx.db)
-    const downloads = new DownloadManager(store, dir, ctx)
+    const downloads = new DownloadManager(store, dir, ctx, fetch, Number(ctx.settings.get(PARALLEL_KEY) ?? DEFAULT_PARALLEL))
     const guides = new GuideManager(ctx.db, join(dir, 'guides'), ctx)
     library = new Library(new KiwixClient(process.env.KIWIX_URL || 'http://kiwix:8080'), store, downloads, guides)
     await downloads.start()

@@ -2,7 +2,7 @@ import { Link, useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 import { formatBytes, percent } from '#/platform/ui/format'
 import { count, monthYear } from './format'
-import { browseCatalog, checkBookUpdates, controlDownload, getDownloads, getRecommended, removeBook, startDownload } from './library.functions'
+import { browseCatalog, checkBookUpdates, controlDownload, getDownloads, getRecommended, removeBook, setParallelDownloads, startDownload } from './library.functions'
 import { BookIcon } from './ui/BookIcon'
 import { DownloadBar } from './ui/DownloadBar'
 import { GuidesSection } from './ui/GuidesSection'
@@ -54,6 +54,7 @@ export function SourcesPage({ initial }: { initial: SourcesData }) {
   const [storage, setStorage] = useState(initial.storage)
   const [updates, setUpdates] = useState<Record<string, CatalogEntry>>({})
   const [error, setError] = useState<string | null>(null)
+  const [parallel, setParallel] = useState(initial.parallel)
 
   const refresh = useCallback(async () => {
     const d = await getDownloads()
@@ -122,8 +123,28 @@ export function SourcesPage({ initial }: { initial: SourcesData }) {
         <section className="card" aria-labelledby="dls-title">
           <div className="card-head">
             <h2 id="dls-title">Downloads</h2>
-            <span className="mono">ONE AT A TIME · RESUMES AFTER A RESTART</span>
+            <label className="dl-parallel">
+              <span className="mono">AT ONCE</span>
+              <select
+                value={parallel}
+                onChange={(e) => {
+                  const n = Number(e.target.value)
+                  setParallel(n)
+                  void run(() => setParallelDownloads({ data: { n } }))
+                }}
+                aria-label="How many downloads run at once"
+              >
+                {[1, 2, 3, 4].map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
+          <p className="muted" style={{ margin: 0, fontSize: 13 }}>
+            {parallel === 1 ? 'One at a time, in order.' : `Up to ${parallel} at once; the rest wait their turn.`} Downloads pick up where they left off after a restart.
+          </p>
           {shown.map((d) => (
             <DownloadBar key={d.id} d={d}>
               {(d.state === 'downloading' || d.state === 'queued') && (

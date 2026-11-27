@@ -8,6 +8,9 @@ CalVer (`YYYY.M.D`).
 
 ### Added
 
+- Parallel downloads in the Library: two at once by default, adjustable from 1
+  to 4 on the Sources screen, so a small book or the map isn't stuck behind
+  Wikipedia. Each download checks it leaves room for the others.
 - Messages over MeshCore LoRa radio: connect a companion radio by USB or Wi-Fi
   (or try the demo radio), with channels and direct messages, delivery receipts
   with round-trip time, hops and SNR, retry for failed messages, unread counts,

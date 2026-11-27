@@ -65,10 +65,10 @@ export function LibraryHomePage({ data }: { data: LibraryHome }) {
               Manage ›
             </Link>
           </div>
-          {active.slice(0, 2).map((d) => (
+          {active.slice(0, 4).map((d) => (
             <DownloadBar key={d.id} d={d} />
           ))}
-          {active.length > 2 && <p className="muted" style={{ margin: 0, fontSize: 13 }}>And {active.length - 2} more waiting.</p>}
+          {active.length > 4 && <p className="muted" style={{ margin: 0, fontSize: 13 }}>And {active.length - 4} more waiting.</p>}
         </section>
       )}
 

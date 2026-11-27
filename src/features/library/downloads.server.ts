@@ -13,6 +13,10 @@ import type { CatalogEntry, Download, StorageInfo } from './types'
 export const SPACE_MARGIN = 2 * 1024 ** 3
 const SAVE_EVERY_MS = 2000
 const RETRIES = [10, 30, 60, 120, 300].map((s) => s * 1000)
+/** Two at once by default: a small download isn't stuck behind Wikipedia, and most connections are still used well. */
+export const DEFAULT_PARALLEL = 2
+export const MAX_PARALLEL = 4
+const clampParallel = (n: number) => (Number.isFinite(n) ? Math.min(MAX_PARALLEL, Math.max(1, Math.round(n))) : DEFAULT_PARALLEL)
 
 export class DownloadError extends Error {
   constructor(
@@ -32,6 +36,7 @@ type StopReason = 'pause' | 'cancel' | 'stop'
 
 interface Live {
   id: number
+  size: number
   abort: AbortController
   bytes: number
   bytesPerSec: number | null
@@ -39,22 +44,38 @@ interface Live {
 }
 
 /**
- * Downloads ZIM files into the library folder, one at a time, in the order
- * they were asked for. A download goes to `<id>.zim.part`, so Kiwix never
+ * Downloads ZIM files into the library folder, a few at a time (two by
+ * default), in the order they were asked for. A download goes to `<id>.zim.part`, so Kiwix never
  * sees half a file; it resumes where it left off after a pause, a dropped
  * connection or a restart; it's checked against Kiwix's SHA-256 when there is
  * one; and only then renamed to `<id>.zim`, which Kiwix picks up by itself.
  */
 export class DownloadManager {
-  private live: Live | null = null
+  private live = new Map<number, Live>()
   private stopped = false
+  /** How many files download at once. */
+  private parallel: number
 
   constructor(
     private readonly store: LibraryStore,
     readonly dir: string,
     private readonly ctx: Pick<FeatureContext, 'notify' | 'log'>,
     private readonly fetchImpl: typeof fetch = fetch,
-  ) {}
+    parallel = DEFAULT_PARALLEL,
+  ) {
+    this.parallel = clampParallel(parallel)
+  }
+
+  getParallel(): number {
+    return this.parallel
+  }
+
+  /** Changes how many run at once; more start straight away, and fewer let the extra ones finish. */
+  setParallel(n: number): number {
+    this.parallel = clampParallel(n)
+    this.kick()
+    return this.parallel
+  }
 
   async start(): Promise<void> {
     this.stopped = false
@@ -68,13 +89,14 @@ export class DownloadManager {
 
   stop(): void {
     this.stopped = true
-    this.live?.abort.abort('stop' satisfies StopReason)
+    for (const l of this.live.values()) l.abort.abort('stop' satisfies StopReason)
   }
 
   list(): Download[] {
-    return this.store.downloads().map((d) =>
-      this.live && this.live.id === d.id ? { ...d, bytes: this.live.bytes, bytesPerSec: this.live.bytesPerSec, verified: this.live.verified } : d,
-    )
+    return this.store.downloads().map((d) => {
+      const l = this.live.get(d.id)
+      return l ? { ...d, bytes: l.bytes, bytesPerSec: l.bytesPerSec, verified: l.verified } : d
+    })
   }
 
   async storage(): Promise<StorageInfo | null> {
@@ -126,7 +148,8 @@ export class DownloadManager {
   pause(id: number): void {
     const d = this.store.download(id)
     if (!d) return
-    if (this.live?.id === id) this.live.abort.abort('pause' satisfies StopReason)
+    const l = this.live.get(id)
+    if (l) l.abort.abort('pause' satisfies StopReason)
     else if (d.state === 'queued') this.store.update(id, { state: 'paused' })
   }
 
@@ -141,7 +164,7 @@ export class DownloadManager {
   async cancel(id: number): Promise<void> {
     const d = this.store.download(id)
     if (!d || d.state === 'done') return
-    if (this.live?.id === id) this.live.abort.abort('cancel' satisfies StopReason)
+    this.live.get(id)?.abort.abort('cancel' satisfies StopReason)
     this.store.update(id, { state: 'cancelled' })
     await unlink(this.partPath(d)).catch(() => {})
   }
@@ -160,18 +183,20 @@ export class DownloadManager {
     return join(this.dir, `${d.contentId}.zim.part`)
   }
 
-  /** Starts the next queued download if nothing's running. */
+  /** Starts queued downloads until as many are running as allowed. */
   private kick(): void {
-    if (this.live || this.stopped) return
-    const next = this.store.active().find((d) => d.state === 'queued')
-    if (!next) return
-    const live: Live = { id: next.id, abort: new AbortController(), bytes: next.bytes, bytesPerSec: null, verified: null }
-    this.live = live
-    void this.run(next, live).finally(() => {
-      if (this.live === live) this.live = null
-      // Let the event loop breathe before starting the next one.
-      setTimeout(() => this.kick(), 50).unref?.()
-    })
+    if (this.stopped) return
+    const queued = this.store.active().filter((d) => d.state === 'queued' && !this.live.has(d.id))
+    while (this.live.size < this.parallel && queued.length) {
+      const next = queued.shift()!
+      const live: Live = { id: next.id, size: next.sizeBytes, abort: new AbortController(), bytes: next.bytes, bytesPerSec: null, verified: null }
+      this.live.set(next.id, live)
+      void this.run(next, live).finally(() => {
+        if (this.live.get(next.id) === live) this.live.delete(next.id)
+        // Let the event loop breathe before starting the next one.
+        setTimeout(() => this.kick(), 50).unref?.()
+      })
+    }
   }
 
   private async run(d: Download, live: Live): Promise<void> {
@@ -182,7 +207,7 @@ export class DownloadManager {
         await this.transfer(d, live)
         break
       } catch (err) {
-        if (signal.aborted) return this.stopped_(d, signal.reason as StopReason)
+        if (signal.aborted) return this.stopped_(d, signal.reason as StopReason, live)
         const message = (err as Error).message
         if (err instanceof DownloadError || attempt >= RETRIES.length) {
           this.store.update(d.id, { state: 'failed', error: message, bytes: live.bytes })
@@ -192,7 +217,7 @@ export class DownloadManager {
         this.ctx.log(`${d.contentId}: ${message}; retrying in ${RETRIES[attempt]! / 1000}s`)
         this.store.update(d.id, { error: `${message} Trying again shortly.`, bytes: live.bytes })
         live.bytesPerSec = null
-        if (!(await sleep(RETRIES[attempt]!, signal))) return this.stopped_(d, signal.reason as StopReason)
+        if (!(await sleep(RETRIES[attempt]!, signal))) return this.stopped_(d, signal.reason as StopReason, live)
       }
     }
 
@@ -212,7 +237,7 @@ export class DownloadManager {
         }
       }
     } catch (err) {
-      if (signal.aborted) return this.stopped_(d, signal.reason as StopReason)
+      if (signal.aborted) return this.stopped_(d, signal.reason as StopReason, live)
       this.ctx.log(`${d.contentId}: couldn't verify (${(err as Error).message}), keeping it`)
     }
 
@@ -225,10 +250,10 @@ export class DownloadManager {
     this.ctx.notify({ level: 'info', title: `${d.title} is ready`, body: `${gb(live.bytes)} downloaded and added to the library.` })
   }
 
-  private stopped_(d: Download, reason: StopReason): void {
+  private stopped_(d: Download, reason: StopReason, live: Live): void {
     if (reason === 'pause') this.store.update(d.id, { state: 'paused' })
     // 'cancel' set its own state; 'stop' leaves it to be resumed on the next start.
-    else if (reason === 'stop') this.store.update(d.id, { bytes: this.live?.bytes ?? d.bytes })
+    else if (reason === 'stop') this.store.update(d.id, { bytes: live.bytes })
   }
 
   /** One pass at fetching the rest of the file. Throws on anything short of all of it. */
@@ -236,7 +261,10 @@ export class DownloadManager {
     const part = this.partPath(d)
     let have = (await stat(part).catch(() => null))?.size ?? 0
     const storage = await this.storage()
-    if (storage && d.sizeBytes - have > storage.freeBytes - SPACE_MARGIN / 2) {
+    // Other downloads running alongside need their room too.
+    let others = 0
+    for (const l of this.live.values()) if (l.id !== d.id) others += Math.max(0, l.size - l.bytes)
+    if (storage && d.sizeBytes - have > storage.freeBytes - others - SPACE_MARGIN / 2) {
       throw new DownloadError(`The disk is nearly full: ${gb(storage.freeBytes)} free, ${gb(d.sizeBytes - have)} still to download.`)
     }
 
@@ -262,6 +290,7 @@ export class DownloadManager {
       this.store.update(d.id, { sizeBytes: total })
       d.sizeBytes = total
     }
+    live.size = total
 
     live.bytes = have
     let lastSave = Date.now()

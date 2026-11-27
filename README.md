@@ -108,7 +108,7 @@ iFixit, Wiktionary, and anything else in
 Sources**. Most come in three sizes: with pictures, text only, or
 introductions only.
 
-- Downloads run one at a time, resume after a dropped connection or a restart,
+- Downloads run two at a time (1 to 4, set on the Sources screen), resume after a dropped connection or a restart,
   and are checked against Kiwix's SHA-256 before they're added.
 - Books live in `data/library` as `.zim` files. You can also copy `.zim` files
   there yourself; they appear within a few seconds.
