@@ -11,6 +11,7 @@
 #   bash proxmox-lxc.sh --update 120       update Outpost inside CT 120
 #   bash proxmox-lxc.sh --rollback 120     go back to the version before the last update
 #   bash proxmox-lxc.sh --status 120       version, channel and address
+#   bash proxmox-lxc.sh --usb 120 [device] pass a USB MeshCore radio through to CT 120
 #
 # Settings: --ctid --hostname --cores --memory (MB) --disk (GB) --storage
 #           --bridge --ip (dhcp or CIDR) --gateway --vlan --channel
@@ -25,7 +26,7 @@ APP_DIR=/opt/outpost
 # maps (~20 GB), plus backups and room to update.
 CORES=4 MEMORY=4096 DISK=250 SWAP=512
 CTID="" CT_HOSTNAME=outpost STORAGE="" BRIDGE=vmbr0 IP=dhcp GATEWAY="" VLAN="" CHANNEL=beta
-PASSWORD="" SSH_KEY="" YES=0 MODE=create TARGET=""
+PASSWORD="" SSH_KEY="" YES=0 MODE=create TARGET="" USB_DEV=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -46,6 +47,7 @@ while [ $# -gt 0 ]; do
     --update) MODE=update; TARGET="$2"; shift ;;
     --rollback) MODE=rollback; TARGET="$2"; shift ;;
     --status) MODE=status; TARGET="$2"; shift ;;
+    --usb) MODE=usb; TARGET="$2"; shift; if [[ "${2:-}" == /dev/* ]]; then USB_DEV="$2"; shift; fi ;;
     -h|--help) sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "Unknown option: $1 (try --help)" >&2; exit 2 ;;
   esac
@@ -77,6 +79,52 @@ case "$MODE" in
     in_ct "$TARGET" "cd $APP_DIR && echo \"version \$(node -p 2>/dev/null \"require('./package.json').version\" || sed -n 's/.*\"version\": *\"\\([^\"]*\\)\".*/\\1/p' package.json | head -n1)\" \
       && echo \"commit  \$(git rev-parse --short HEAD)\" && echo \"channel \$(cat data/update/channel 2>/dev/null || echo beta)\" \
       && echo \"address http://\$(hostname -I | awk '{print \$1}'):\$(sed -n 's/^PORT=//p' .env)\""
+    exit 0 ;;
+  usb)
+    # Passes a USB serial radio (MeshCore companion firmware) into the
+    # container as /dev/meshcore, then points Outpost at it.
+    ct_has_outpost "$TARGET"
+    if [ -z "$USB_DEV" ]; then
+      mapfile -t devs < <(ls /dev/serial/by-id/* 2>/dev/null || true)
+      [ "${#devs[@]}" -gt 0 ] || die "No USB serial devices found. Plug the radio into this Proxmox host and try again."
+      if [ "${#devs[@]}" -eq 1 ]; then USB_DEV="${devs[0]}"; else
+        echo "Which one is the radio?"
+        select d in "${devs[@]}"; do [ -n "$d" ] && USB_DEV="$d" && break; done
+      fi
+    fi
+    [ -e "$USB_DEV" ] || die "$USB_DEV doesn't exist."
+    real="$(readlink -f "$USB_DEV")"
+    major=$((16#$(stat -c %t "$real")))
+    serial="$(udevadm info -q property -n "$real" 2>/dev/null | sed -n 's/^ID_SERIAL=//p')"
+    conf="/etc/pve/lxc/$TARGET.conf"
+    say "Radio: $USB_DEV ($real, device $major)"
+    cat <<MSG
+
+This will:
+  - let CT $TARGET use serial devices with major number $major
+  - mount the radio inside it as /dev/meshcore
+  - add a udev rule on this host so the container can open it
+    (/etc/udev/rules.d/99-outpost-meshcore.rules, readable and writable by all)
+  - set MESHCORE_DEVICE in Outpost's .env and restart CT $TARGET
+MSG
+    if [ "$YES" -ne 1 ]; then
+      read -r -p "Go ahead? [y/N] " ok
+      [[ "$ok" =~ ^[Yy] ]] || { echo "Nothing changed."; exit 0; }
+    fi
+    grep -qxF "lxc.cgroup2.devices.allow: c $major:* rwm" "$conf" || echo "lxc.cgroup2.devices.allow: c $major:* rwm" >> "$conf"
+    sed -i '\#dev/meshcore none bind#d' "$conf"
+    echo "lxc.mount.entry: $USB_DEV dev/meshcore none bind,optional,create=file" >> "$conf"
+    if [ -n "$serial" ]; then
+      echo "SUBSYSTEM==\"tty\", ENV{ID_SERIAL}==\"$serial\", MODE=\"0666\"" > /etc/udev/rules.d/99-outpost-meshcore.rules
+      udevadm control --reload-rules && udevadm trigger --subsystem-match=tty || true
+    fi
+    chmod 0666 "$real" || true
+    in_ct "$TARGET" "cd $APP_DIR && touch .env && (grep -q '^MESHCORE_DEVICE=' .env && sed -i 's#^MESHCORE_DEVICE=.*#MESHCORE_DEVICE=/dev/meshcore#' .env || echo MESHCORE_DEVICE=/dev/meshcore >> .env)"
+    say "Restarting CT $TARGET"
+    pct reboot "$TARGET"
+    for _ in $(seq 1 30); do in_ct "$TARGET" "test -e /dev/meshcore" 2>/dev/null && break; sleep 2; done
+    in_ct "$TARGET" "cd $APP_DIR && bash install.sh start" || warn "Outpost didn't restart cleanly; run: bash proxmox-lxc.sh --status $TARGET"
+    say "Done. In Outpost, open Messages and choose USB cable (device /dev/meshcore)."
     exit 0 ;;
 esac
 

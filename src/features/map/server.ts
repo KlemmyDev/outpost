@@ -1,5 +1,6 @@
 import type { FeatureContext, FeatureServer } from '#/platform/server/runtime.server'
 import { getLibrary } from '#/features/library/server'
+import { getMessages } from '#/features/messages/server'
 import { isAppBook } from '#/features/library/types'
 import { buildPlaceIndex, type Bounds } from './places.server'
 import { MapStore, MIGRATIONS } from './store.server'
@@ -169,6 +170,9 @@ export class MapService {
       sources,
       current,
       waypoints: this.store.waypoints(),
+      radios: (getMessages()?.store.contacts() ?? [])
+        .filter((c) => c.lat !== null && c.lon !== null)
+        .map((c) => ({ name: c.name, type: c.type, lat: c.lat!, lon: c.lon!, lastAdvert: c.lastAdvert })),
       index: current ? this.indexStatus(current.contentId) : null,
       download: dl ? { title: dl.title, bytes: dl.bytes, sizeBytes: dl.sizeBytes, state: dl.state } : null,
     }

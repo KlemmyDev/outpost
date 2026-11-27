@@ -16,6 +16,16 @@ if [ "$(id -u)" = "0" ]; then
   chmod 755 /data/update 2>/dev/null || true
   # Kiwix runs as its own user and reads the library folder.
   chmod 755 /data/library 2>/dev/null || true
+  # Messages needs the radio: join the group that owns it (never root's).
+  groups=""
+  if [ -c /dev/meshcore ]; then
+    dgid=$(stat -c %g /dev/meshcore)
+    [ "$dgid" != "0" ] && groups="--groups $dgid"
+  fi
+  if [ -n "$groups" ]; then
+    # shellcheck disable=SC2086
+    exec setpriv --reuid "$uid" --regid "$gid" $groups -- "$@"
+  fi
   exec setpriv --reuid "$uid" --regid "$gid" --clear-groups -- "$@"
 fi
 

@@ -6,6 +6,7 @@ import { loadStyle, type MapTheme } from './style'
 import { MapSearch, type SearchPick } from './ui/MapSearch'
 import { WaypointForm, type Draft } from './ui/WaypointForm'
 import { KindBadge } from './ui/KindBadge'
+import { ago } from '#/features/library/format'
 import { KIND_STYLE, type IndexStatus, type MapData, type Waypoint } from './types'
 
 type Point = { lat: number; lon: number }
@@ -46,6 +47,19 @@ function waypointGeoJSON(list: Waypoint[]): GeoJSON.FeatureCollection {
   }
 }
 
+const RADIO_WORDS = { chat: 'Radio', repeater: 'Repeater', room: 'Room server', sensor: 'Sensor', unknown: 'Radio' } as const
+
+function radioGeoJSON(list: MapData['radios']): GeoJSON.FeatureCollection {
+  return {
+    type: 'FeatureCollection',
+    features: list.map((r, i) => ({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [r.lon, r.lat] },
+      properties: { i, name: r.name, repeater: r.type === 'repeater' },
+    })),
+  }
+}
+
 function measureGeoJSON(points: Point[]): GeoJSON.FeatureCollection {
   return {
     type: 'FeatureCollection',
@@ -82,11 +96,12 @@ export function MapScreen({ data }: { data: MapData }) {
   const [panelOpen, setPanelOpen] = useState(true)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [showRadios, setShowRadios] = useState(true)
   const canLocate = typeof window !== 'undefined' && window.isSecureContext && 'geolocation' in navigator
 
   // Refs so map event handlers (registered once) see the latest state.
-  const live = useRef({ measuring, waypoints, measure, draft })
-  live.current = { measuring, waypoints, measure, draft }
+  const live = useRef({ measuring, waypoints, measure, draft, showRadios })
+  live.current = { measuring, waypoints, measure, draft, showRadios }
 
   const home = waypoints.find((w) => w.kind === 'home') ?? null
   const selectedWaypoint = selection?.type === 'waypoint' ? (waypoints.find((w) => w.id === selection.id) ?? null) : null
@@ -114,6 +129,30 @@ export function MapScreen({ data }: { data: MapData }) {
     if (!map.getLayer('measure-line')) {
       map.addLayer({ id: 'measure-line', type: 'line', source: 'measure', filter: ['==', ['geometry-type'], 'LineString'], paint: { 'line-color': '#C2652A', 'line-width': 3, 'line-dasharray': [2, 1.2] } })
       map.addLayer({ id: 'measure-pts', type: 'circle', source: 'measure', filter: ['==', ['geometry-type'], 'Point'], paint: { 'circle-radius': 5, 'circle-color': '#ffffff', 'circle-stroke-color': '#C2652A', 'circle-stroke-width': 2.5 } })
+    }
+    if (!map.getSource('radios')) map.addSource('radios', { type: 'geojson', data: radioGeoJSON(data.radios) })
+    if (!map.getLayer('radio-dot')) {
+      // Radios: small dark dots with a ring (repeaters a little bigger), kept apart from waypoint markers.
+      map.addLayer({
+        id: 'radio-dot',
+        type: 'circle',
+        source: 'radios',
+        layout: { visibility: live.current.showRadios ? 'visible' : 'none' },
+        paint: {
+          'circle-radius': ['case', ['get', 'repeater'], 6.5, 5],
+          'circle-color': night ? '#e7e3da' : '#1f2421',
+          'circle-stroke-color': night ? '#151a19' : '#ffffff',
+          'circle-stroke-width': 2,
+        },
+      })
+      map.addLayer({
+        id: 'radio-label',
+        type: 'symbol',
+        source: 'radios',
+        minzoom: 9,
+        layout: { 'text-field': ['get', 'name'], 'text-font': ['Noto Sans Italic'], 'text-size': 11, 'text-offset': [0, 1.2], 'text-anchor': 'top', 'text-optional': true, visibility: live.current.showRadios ? 'visible' : 'none' },
+        paint: { 'text-color': night ? '#cfcac0' : '#3a403c', 'text-halo-color': night ? '#151a19' : '#ffffff', 'text-halo-width': 1.5 },
+      })
     }
     if (!map.getLayer('wp-circle')) {
       map.addLayer({ id: 'wp-circle', type: 'circle', source: 'wp', paint: { 'circle-radius': 12, 'circle-color': ['get', 'color'], 'circle-stroke-color': night ? '#151a19' : '#ffffff', 'circle-stroke-width': 2.5 } })
@@ -192,7 +231,10 @@ export function MapScreen({ data }: { data: MapData }) {
           }
           const hit = map!.queryRenderedFeatures(e.point, { layers: ['wp-circle'] })[0]
           const id = hit?.properties?.id
+          const radio = live.current.showRadios ? map!.queryRenderedFeatures(e.point, { layers: ['radio-dot'] })[0] : undefined
+          const r = typeof radio?.properties?.i === 'number' ? data.radios[radio.properties.i] : undefined
           if (typeof id === 'number') setSelection({ type: 'waypoint', id })
+          else if (r) setSelection({ type: 'point', lat: r.lat, lon: r.lon, name: r.name, detail: `${RADIO_WORDS[r.type]}${r.lastAdvert ? ` · heard ${ago(r.lastAdvert)}` : ''}` })
           else setSelection({ type: 'point', ...at })
           setConfirmDelete(false)
           setPanelOpen(true)
@@ -230,6 +272,12 @@ export function MapScreen({ data }: { data: MapData }) {
   useEffect(() => {
     ;(mapRef.current?.getSource('measure') as GeoJSONSource | undefined)?.setData(measureGeoJSON(measure))
   }, [measure, ready])
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !ready) return
+    for (const id of ['radio-dot', 'radio-label']) if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', showRadios ? 'visible' : 'none')
+  }, [showRadios, ready])
 
   // The pin: shows the selected spot, and can be dragged while editing a waypoint.
   useEffect(() => {
@@ -545,6 +593,14 @@ export function MapScreen({ data }: { data: MapData }) {
               H
             </span>
             <span>Home</span>
+          </button>
+        )}
+        {data.radios.length > 0 && (
+          <button type="button" className={`map-tool${showRadios ? ' on-soft' : ''}`} aria-pressed={showRadios} onClick={() => setShowRadios((s) => !s)} title="Show MeshCore radios that share their position">
+            <span aria-hidden="true" style={{ fontSize: 16, lineHeight: '18px' }}>
+              ◆
+            </span>
+            <span>Radios</span>
           </button>
         )}
         {canLocate && (

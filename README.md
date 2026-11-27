@@ -149,6 +149,31 @@ Library on.
 - "Me" shows your location only when Outpost is opened over HTTPS (or on the
   server itself); browsers don't share location with plain-HTTP pages.
 
+## Messages
+
+**Messages** (off by default) texts over a [MeshCore](https://meshcore.co.uk)
+LoRa radio: no internet or phone network, a few kilometres on its own and much
+further through repeaters. Outpost keeps the radio connected and every message
+in its database, so everyone at home reads and sends from the browser.
+
+- Any MeshCore device with the **companion radio** firmware, over USB or Wi-Fi.
+  In Australia, flash it with the Australia preset (915.8 MHz).
+- Channels (Public and any others on the radio) and direct messages, with
+  delivery receipts, hop counts and signal strength. Failed messages can be
+  sent again.
+- Radios heard, with their type and distance in hops; those that share a
+  position appear on the Map. You can share Home from the Map, rounded to
+  about 1 km.
+- A **demo radio** with pretend neighbours, to try it without hardware.
+
+USB radio: set `MESHCORE_DEVICE=/dev/ttyACM0` (see `ls /dev/serial/by-id/`) in
+`.env` and run `bash install.sh` again. On Proxmox, run this on the host to pass
+the radio through to the container and set that up:
+
+```bash
+bash proxmox-lxc.sh --usb 120
+```
+
 ## Development
 
 Needs Node 24.

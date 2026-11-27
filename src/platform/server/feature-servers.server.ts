@@ -1,6 +1,7 @@
 import { server as internet } from '#/features/internet/server'
 import { server as library } from '#/features/library/server'
 import { server as map } from '#/features/map/server'
+import { server as messages } from '#/features/messages/server'
 import type { FeatureServer } from './runtime.server'
 
 /**
@@ -11,4 +12,5 @@ export const FEATURE_SERVERS: Readonly<Record<string, FeatureServer>> = {
   internet,
   library,
   map,
+  messages,
 }

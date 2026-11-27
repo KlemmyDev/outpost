@@ -19,6 +19,10 @@ services:
       KIWIX_URL: http://kiwix:8080
     volumes:
       - ./data:/data
+    # A MeshCore radio for Messages, if one is plugged in: set MESHCORE_DEVICE
+    # in .env (e.g. /dev/ttyACM0). Without it, /dev/null stands in.
+    devices:
+      - ${MESHCORE_DEVICE:-/dev/null}:/dev/meshcore
     depends_on:
       - kiwix
     logging:

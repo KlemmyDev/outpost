@@ -66,8 +66,18 @@ export interface MapData {
   current: MapSource | null
   waypoints: Waypoint[]
   index: IndexStatus | null
+  /** MeshCore radios that share a position, from Messages (empty when it's off). */
+  radios: MapRadio[]
   /** A map download in progress, from the Library. */
   download: { title: string; bytes: number; sizeBytes: number; state: string } | null
+}
+
+export interface MapRadio {
+  name: string
+  type: 'chat' | 'repeater' | 'room' | 'sensor' | 'unknown'
+  lat: number
+  lon: number
+  lastAdvert: number | null
 }
 
 /** The Map's Overview card. */

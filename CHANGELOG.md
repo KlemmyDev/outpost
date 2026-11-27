@@ -8,6 +8,21 @@ CalVer (`YYYY.M.D`).
 
 ### Added
 
+- Messages over MeshCore LoRa radio: connect a companion radio by USB or Wi-Fi
+  (or try the demo radio), with channels and direct messages, delivery receipts
+  with round-trip time, hops and SNR, retry for failed messages, unread counts,
+  notifications for direct (and optionally channel) messages, and automatic
+  reconnection. Messages are kept in Outpost's database and work across the
+  household.
+- Radios heard: people, repeaters and room servers with route length and when
+  they were last heard, and a Message button. Radios that share a position show
+  on the Map, with a toggle.
+- Radio settings: name, sharing Home's position (rounded to about 1 km), the
+  connection, notifications, and the radio's frequency, modem settings, power
+  and battery.
+- USB radios in Docker (`MESHCORE_DEVICE` maps to `/dev/meshcore`, and the
+  container joins the device's group), and `proxmox-lxc.sh --usb <ctid>` to pass
+  a radio through to a Proxmox container.
 - Map: the offline map drawn with MapLibre in Outpost's style, with paper and
   night themes, a remembered view, and a "Whole map" button. Map files are
   Kiwix maps ZIMs downloaded through the Library (one tap for the map of
