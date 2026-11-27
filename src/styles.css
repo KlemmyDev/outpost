@@ -2267,16 +2267,13 @@ a.row.lib-row-link:hover {
 .article-body .hatnote,
 .article-body .dablink {
   margin-bottom: 1em;
-  padding-left: 1em;
-  border-left: 3px solid var(--r-line);
   font-style: italic;
   color: var(--r-soft);
 }
 
 .article-body blockquote {
-  margin: 0 0 1em;
-  padding: 0.2em 1.2em;
-  border-left: 3px solid var(--ochre);
+  margin: 0 0 1em 1.4em;
+  font-style: italic;
   color: var(--r-soft);
 }
 
