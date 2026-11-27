@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: shellcheck -S warning install.sh updater.sh scripts/*.sh docker/entrypoint.sh
+      - run: shellcheck -S warning install.sh updater.sh scripts/*.sh docker/entrypoint.sh docker/kiwix.sh
 
   docker:
     name: Docker image (${{ matrix.arch }})

@@ -1,4 +1,5 @@
 import type { InternetStatus } from '#/features/internet/types'
+import type { LibraryStatus } from '#/features/library/types'
 
 /** Shared between the server and the Overview UI. No Node imports. */
 
@@ -10,6 +11,7 @@ import type { InternetStatus } from '#/features/internet/types'
  */
 export interface WidgetData {
   internet?: InternetStatus | null
+  library?: LibraryStatus | null
 }
 
 export interface ServerStats {

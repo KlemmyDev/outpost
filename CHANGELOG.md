@@ -8,6 +8,29 @@ CalVer (`YYYY.M.D`).
 
 ### Added
 
+- Library: offline Wikipedia, WikiMed, Wikivoyage, Wikibooks, iFixit,
+  Wiktionary and the rest of Kiwix's catalogue, read through a kiwix-serve
+  sidecar container that Outpost keeps in step with `data/library`.
+- Library home: search with title suggestions as you type, continue reading,
+  your books (with a random article from each), and saved pages.
+- Full-text search across every book, grouped by book, with paging inside one.
+- Reader: each page cleaned into Outpost's type (scripts, styles and page
+  furniture removed, pictures loaded through Outpost), contents that follow
+  along as you scroll, a reading progress line, paper, sepia and night themes,
+  five text sizes, serif or sans, saving for later, and links that stay in the
+  reader. On phones the lead comes before the infobox. "Original layout" opens
+  the page as the book made it, sandboxed.
+- Sources: storage use, recommended collections with each size Kiwix offers
+  (with pictures, text only, introductions only), the whole catalogue to browse
+  by language and kind, downloads with progress, speed and time left, pause,
+  resume and cancel, updating a book to a newer edition, and removing one.
+- Downloads run one at a time into `.part` files, resume with HTTP ranges after
+  a dropped connection or restart, retry with backoff, check free space first,
+  are verified against Kiwix's SHA-256, and send a notification when they're
+  ready or fail.
+- Saved pages and reading history, with removing and clearing.
+- The Library card on the Overview shows articles, books, size and download
+  progress, and the Overview's search goes to the Library.
 - Interactive charts: legends that show and hide each series, dots on the
   hovered point, click or Enter to pin a tooltip, lines that draw in and bars
   that grow when a chart appears or its range changes, and hovering an event

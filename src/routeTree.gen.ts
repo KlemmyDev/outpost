@@ -19,12 +19,19 @@ import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as PowerRouteImport } from './routes/power'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ApiHealthzRouteImport } from './routes/api/healthz'
+import { Route as LibraryIndexRouteImport } from './routes/library/index'
+import { Route as LibrarySavedRouteImport } from './routes/library/saved'
+import { Route as LibrarySearchRouteImport } from './routes/library/search'
+import { Route as LibrarySourcesRouteImport } from './routes/library/sources'
 import { Route as ApiFeaturesIndexRouteImport } from './routes/api/features/index'
 import { Route as ApiFeaturesIdRouteImport } from './routes/api/features/$id'
 import { Route as ApiUpdatesIndexRouteImport } from './routes/api/updates/index'
 import { Route as ApiUpdatesChannelRouteImport } from './routes/api/updates/channel'
 import { Route as ApiUpdatesCheckRouteImport } from './routes/api/updates/check'
 import { Route as ApiUpdatesInstallRouteImport } from './routes/api/updates/install'
+import { Route as ApiLibraryIconUuidRouteImport } from './routes/api/library/icon.$uuid'
+import { Route as LibraryReadBookSplatRouteImport } from './routes/library/read.$book.$'
+import { Route as ApiLibraryRawBookSplatRouteImport } from './routes/api/library/raw.$book.$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -76,6 +83,26 @@ const ApiHealthzRoute = ApiHealthzRouteImport.update({
   path: '/api/healthz',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LibraryIndexRoute = LibraryIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LibraryRoute,
+} as any)
+const LibrarySavedRoute = LibrarySavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
+  getParentRoute: () => LibraryRoute,
+} as any)
+const LibrarySearchRoute = LibrarySearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => LibraryRoute,
+} as any)
+const LibrarySourcesRoute = LibrarySourcesRouteImport.update({
+  id: '/sources',
+  path: '/sources',
+  getParentRoute: () => LibraryRoute,
+} as any)
 const ApiFeaturesIndexRoute = ApiFeaturesIndexRouteImport.update({
   id: '/api/features/',
   path: '/api/features/',
@@ -106,42 +133,70 @@ const ApiUpdatesInstallRoute = ApiUpdatesInstallRouteImport.update({
   path: '/api/updates/install',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiLibraryIconUuidRoute = ApiLibraryIconUuidRouteImport.update({
+  id: '/api/library/icon/$uuid',
+  path: '/api/library/icon/$uuid',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LibraryReadBookSplatRoute = LibraryReadBookSplatRouteImport.update({
+  id: '/read/$book/$',
+  path: '/read/$book/$',
+  getParentRoute: () => LibraryRoute,
+} as any)
+const ApiLibraryRawBookSplatRoute = ApiLibraryRawBookSplatRouteImport.update({
+  id: '/api/library/raw/$book/$',
+  path: '/api/library/raw/$book/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/emergency': typeof EmergencyRoute
   '/first-aid': typeof FirstAidRoute
   '/internet': typeof InternetRoute
-  '/library': typeof LibraryRoute
+  '/library': typeof LibraryRouteWithChildren
   '/map': typeof MapRoute
   '/messages': typeof MessagesRoute
   '/power': typeof PowerRoute
   '/settings': typeof SettingsRoute
   '/api/healthz': typeof ApiHealthzRoute
+  '/library/saved': typeof LibrarySavedRoute
+  '/library/search': typeof LibrarySearchRoute
+  '/library/sources': typeof LibrarySourcesRoute
+  '/library/': typeof LibraryIndexRoute
   '/api/features/$id': typeof ApiFeaturesIdRoute
   '/api/updates/channel': typeof ApiUpdatesChannelRoute
   '/api/updates/check': typeof ApiUpdatesCheckRoute
   '/api/updates/install': typeof ApiUpdatesInstallRoute
   '/api/features/': typeof ApiFeaturesIndexRoute
   '/api/updates/': typeof ApiUpdatesIndexRoute
+  '/api/library/icon/$uuid': typeof ApiLibraryIconUuidRoute
+  '/library/read/$book/$': typeof LibraryReadBookSplatRoute
+  '/api/library/raw/$book/$': typeof ApiLibraryRawBookSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/emergency': typeof EmergencyRoute
   '/first-aid': typeof FirstAidRoute
   '/internet': typeof InternetRoute
-  '/library': typeof LibraryRoute
   '/map': typeof MapRoute
   '/messages': typeof MessagesRoute
   '/power': typeof PowerRoute
   '/settings': typeof SettingsRoute
   '/api/healthz': typeof ApiHealthzRoute
+  '/library/saved': typeof LibrarySavedRoute
+  '/library/search': typeof LibrarySearchRoute
+  '/library/sources': typeof LibrarySourcesRoute
+  '/library': typeof LibraryIndexRoute
   '/api/features/$id': typeof ApiFeaturesIdRoute
   '/api/updates/channel': typeof ApiUpdatesChannelRoute
   '/api/updates/check': typeof ApiUpdatesCheckRoute
   '/api/updates/install': typeof ApiUpdatesInstallRoute
   '/api/features': typeof ApiFeaturesIndexRoute
   '/api/updates': typeof ApiUpdatesIndexRoute
+  '/api/library/icon/$uuid': typeof ApiLibraryIconUuidRoute
+  '/library/read/$book/$': typeof LibraryReadBookSplatRoute
+  '/api/library/raw/$book/$': typeof ApiLibraryRawBookSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -149,18 +204,25 @@ export interface FileRoutesById {
   '/emergency': typeof EmergencyRoute
   '/first-aid': typeof FirstAidRoute
   '/internet': typeof InternetRoute
-  '/library': typeof LibraryRoute
+  '/library': typeof LibraryRouteWithChildren
   '/map': typeof MapRoute
   '/messages': typeof MessagesRoute
   '/power': typeof PowerRoute
   '/settings': typeof SettingsRoute
   '/api/healthz': typeof ApiHealthzRoute
+  '/library/saved': typeof LibrarySavedRoute
+  '/library/search': typeof LibrarySearchRoute
+  '/library/sources': typeof LibrarySourcesRoute
+  '/library/': typeof LibraryIndexRoute
   '/api/features/$id': typeof ApiFeaturesIdRoute
   '/api/updates/channel': typeof ApiUpdatesChannelRoute
   '/api/updates/check': typeof ApiUpdatesCheckRoute
   '/api/updates/install': typeof ApiUpdatesInstallRoute
   '/api/features/': typeof ApiFeaturesIndexRoute
   '/api/updates/': typeof ApiUpdatesIndexRoute
+  '/api/library/icon/$uuid': typeof ApiLibraryIconUuidRoute
+  '/library/read/$book/$': typeof LibraryReadBookSplatRoute
+  '/api/library/raw/$book/$': typeof ApiLibraryRawBookSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -175,30 +237,43 @@ export interface FileRouteTypes {
     | '/power'
     | '/settings'
     | '/api/healthz'
+    | '/library/saved'
+    | '/library/search'
+    | '/library/sources'
+    | '/library/'
     | '/api/features/$id'
     | '/api/updates/channel'
     | '/api/updates/check'
     | '/api/updates/install'
     | '/api/features/'
     | '/api/updates/'
+    | '/api/library/icon/$uuid'
+    | '/library/read/$book/$'
+    | '/api/library/raw/$book/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/emergency'
     | '/first-aid'
     | '/internet'
-    | '/library'
     | '/map'
     | '/messages'
     | '/power'
     | '/settings'
     | '/api/healthz'
+    | '/library/saved'
+    | '/library/search'
+    | '/library/sources'
+    | '/library'
     | '/api/features/$id'
     | '/api/updates/channel'
     | '/api/updates/check'
     | '/api/updates/install'
     | '/api/features'
     | '/api/updates'
+    | '/api/library/icon/$uuid'
+    | '/library/read/$book/$'
+    | '/api/library/raw/$book/$'
   id:
     | '__root__'
     | '/'
@@ -211,12 +286,19 @@ export interface FileRouteTypes {
     | '/power'
     | '/settings'
     | '/api/healthz'
+    | '/library/saved'
+    | '/library/search'
+    | '/library/sources'
+    | '/library/'
     | '/api/features/$id'
     | '/api/updates/channel'
     | '/api/updates/check'
     | '/api/updates/install'
     | '/api/features/'
     | '/api/updates/'
+    | '/api/library/icon/$uuid'
+    | '/library/read/$book/$'
+    | '/api/library/raw/$book/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -224,7 +306,7 @@ export interface RootRouteChildren {
   EmergencyRoute: typeof EmergencyRoute
   FirstAidRoute: typeof FirstAidRoute
   InternetRoute: typeof InternetRoute
-  LibraryRoute: typeof LibraryRoute
+  LibraryRoute: typeof LibraryRouteWithChildren
   MapRoute: typeof MapRoute
   MessagesRoute: typeof MessagesRoute
   PowerRoute: typeof PowerRoute
@@ -236,6 +318,8 @@ export interface RootRouteChildren {
   ApiUpdatesInstallRoute: typeof ApiUpdatesInstallRoute
   ApiFeaturesIndexRoute: typeof ApiFeaturesIndexRoute
   ApiUpdatesIndexRoute: typeof ApiUpdatesIndexRoute
+  ApiLibraryIconUuidRoute: typeof ApiLibraryIconUuidRoute
+  ApiLibraryRawBookSplatRoute: typeof ApiLibraryRawBookSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -310,6 +394,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiHealthzRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/library/': {
+      id: '/library/'
+      path: '/'
+      fullPath: '/library/'
+      preLoaderRoute: typeof LibraryIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/library/saved': {
+      id: '/library/saved'
+      path: '/saved'
+      fullPath: '/library/saved'
+      preLoaderRoute: typeof LibrarySavedRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/library/search': {
+      id: '/library/search'
+      path: '/search'
+      fullPath: '/library/search'
+      preLoaderRoute: typeof LibrarySearchRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/library/sources': {
+      id: '/library/sources'
+      path: '/sources'
+      fullPath: '/library/sources'
+      preLoaderRoute: typeof LibrarySourcesRouteImport
+      parentRoute: typeof LibraryRoute
+    }
     '/api/features/': {
       id: '/api/features/'
       path: '/api/features'
@@ -352,15 +464,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiUpdatesInstallRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/library/icon/$uuid': {
+      id: '/api/library/icon/$uuid'
+      path: '/api/library/icon/$uuid'
+      fullPath: '/api/library/icon/$uuid'
+      preLoaderRoute: typeof ApiLibraryIconUuidRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/library/read/$book/$': {
+      id: '/library/read/$book/$'
+      path: '/read/$book/$'
+      fullPath: '/library/read/$book/$'
+      preLoaderRoute: typeof LibraryReadBookSplatRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/api/library/raw/$book/$': {
+      id: '/api/library/raw/$book/$'
+      path: '/api/library/raw/$book/$'
+      fullPath: '/api/library/raw/$book/$'
+      preLoaderRoute: typeof ApiLibraryRawBookSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
+
+interface LibraryRouteChildren {
+  LibrarySavedRoute: typeof LibrarySavedRoute
+  LibrarySearchRoute: typeof LibrarySearchRoute
+  LibrarySourcesRoute: typeof LibrarySourcesRoute
+  LibraryIndexRoute: typeof LibraryIndexRoute
+  LibraryReadBookSplatRoute: typeof LibraryReadBookSplatRoute
+}
+
+const LibraryRouteChildren: LibraryRouteChildren = {
+  LibrarySavedRoute: LibrarySavedRoute,
+  LibrarySearchRoute: LibrarySearchRoute,
+  LibrarySourcesRoute: LibrarySourcesRoute,
+  LibraryIndexRoute: LibraryIndexRoute,
+  LibraryReadBookSplatRoute: LibraryReadBookSplatRoute,
+}
+
+const LibraryRouteWithChildren =
+  LibraryRoute._addFileChildren(LibraryRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EmergencyRoute: EmergencyRoute,
   FirstAidRoute: FirstAidRoute,
   InternetRoute: InternetRoute,
-  LibraryRoute: LibraryRoute,
+  LibraryRoute: LibraryRouteWithChildren,
   MapRoute: MapRoute,
   MessagesRoute: MessagesRoute,
   PowerRoute: PowerRoute,
@@ -372,6 +524,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiUpdatesInstallRoute: ApiUpdatesInstallRoute,
   ApiFeaturesIndexRoute: ApiFeaturesIndexRoute,
   ApiUpdatesIndexRoute: ApiUpdatesIndexRoute,
+  ApiLibraryIconUuidRoute: ApiLibraryIconUuidRoute,
+  ApiLibraryRawBookSplatRoute: ApiLibraryRawBookSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

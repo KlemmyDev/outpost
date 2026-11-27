@@ -10,7 +10,8 @@ home. It runs on a Proxmox LXC (or any Linux box with Docker) and updates itself
 from the dashboard.
 
 > **Status: early alpha.** The platform (feature modules, settings, updates,
-> install and rollback) is in place. The feature screens are placeholders.
+> install and rollback), internet monitoring and the Library are working. First
+> aid, the map, messages and power are still placeholders.
 
 ## Install
 
@@ -87,6 +88,7 @@ OUTPOST_FEATURES=messages,-power   # force Messages on and Power off
 
 | Feature | Code | Default |
 | --- | --- | --- |
+| Internet (contacts outside hosts) | NET | on |
 | Library | ARCHIVE | on |
 | First aid (needs Library) | AID STATION | on |
 | Map | RECON | on |
@@ -96,6 +98,26 @@ OUTPOST_FEATURES=messages,-power   # force Messages on and Power off
 
 Adding a feature takes a manifest, a page and a route: see
 [docs/features.md](docs/features.md).
+
+## Library
+
+The Library keeps whole collections on the server so they open with no
+internet: Wikipedia, WikiMed, Wikivoyage, Wikibooks (with its Cookbook),
+iFixit, Wiktionary, and anything else in
+[Kiwix's catalogue](https://library.kiwix.org). Pick them in **Library ›
+Sources**. Most come in three sizes: with pictures, text only, or
+introductions only.
+
+- Downloads run one at a time, resume after a dropped connection or a restart,
+  and are checked against Kiwix's SHA-256 before they're added.
+- Books live in `data/library` as `.zim` files. You can also copy `.zim` files
+  there yourself; they appear within a few seconds.
+- A small [kiwix-serve](https://github.com/kiwix/kiwix-tools) container
+  (`outpost-kiwix`) reads the files. Only Outpost talks to it, so it has no port
+  of its own.
+- The reader cleans each page into Outpost's type, with contents, paper, sepia
+  and night themes, five text sizes, saved pages and history. **Original
+  layout** opens the page as the book made it, sandboxed.
 
 ## Development
 
@@ -107,6 +129,19 @@ npm run dev        # http://localhost:3000, data in ./data
 npm run check      # typecheck and tests
 npm run build && npm start
 ```
+
+The Library needs kiwix-serve. For development, run it against `./data/library`
+and point Outpost at it:
+
+```bash
+docker run -d --name outpost-kiwix -p 8080:8080 \
+  -v "$PWD/data/library:/zim:ro" -v "$PWD/docker/kiwix.sh:/outpost/kiwix.sh:ro" \
+  --entrypoint /bin/sh ghcr.io/kiwix/kiwix-serve:3.8.2 /outpost/kiwix.sh
+KIWIX_URL=http://localhost:8080 npm run dev
+```
+
+Pictures in articles only load in a production build (`npm run build &&
+npm start`); Vite's dev server answers paths ending in `.jpg` itself.
 
 Built with [TanStack Start](https://tanstack.com/start) (React, file routes,
 server routes), Node's built-in SQLite, and Docker Compose.

@@ -16,8 +16,27 @@ services:
       OUTPOST_FEATURES: ${OUTPOST_FEATURES:-}
       OUTPOST_REPO: ${OUTPOST_REPO:-KlemmyDev/outpost}
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      KIWIX_URL: http://kiwix:8080
     volumes:
       - ./data:/data
+    depends_on:
+      - kiwix
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  # Reads the Library's ZIM files (Wikipedia and friends) for Outpost. Only
+  # Outpost talks to it, so it has no port of its own on the host.
+  kiwix:
+    image: ghcr.io/kiwix/kiwix-serve:3.8.2
+    container_name: outpost-kiwix
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "/outpost/kiwix.sh"]
+    volumes:
+      - ./data/library:/zim:ro
+      - ./docker/kiwix.sh:/outpost/kiwix.sh:ro
     logging:
       driver: json-file
       options:

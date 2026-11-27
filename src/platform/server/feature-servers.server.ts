@@ -1,4 +1,5 @@
 import { server as internet } from '#/features/internet/server'
+import { server as library } from '#/features/library/server'
 import type { FeatureServer } from './runtime.server'
 
 /**
@@ -7,4 +8,5 @@ import type { FeatureServer } from './runtime.server'
  */
 export const FEATURE_SERVERS: Readonly<Record<string, FeatureServer>> = {
   internet,
+  library,
 }

@@ -77,7 +77,7 @@ export function OverviewPage({ data }: { data: OverviewData }) {
           <p className="lead">{summary(data)}</p>
         </div>
         {libraryOn && (
-          <form action="/library" method="get" role="search" style={{ position: 'relative', flex: '0 1 400px', display: 'flex' }}>
+          <form action="/library/search" method="get" role="search" style={{ position: 'relative', flex: '0 1 400px', display: 'flex' }}>
             <label htmlFor="overview-search" className="visually-hidden">
               Search the library
             </label>

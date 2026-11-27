@@ -1,49 +1,75 @@
 import { Link } from '@tanstack/react-router'
-import { SummaryCard } from '#/platform/ui/SummaryCard'
+import { formatBytes, percent } from '#/platform/ui/format'
+import { Meter, SummaryCard } from '#/platform/ui/SummaryCard'
 import type { OverviewWidget } from '#/platform/features/widget'
-
-const PLANNED = [
-  { name: 'Wikipedia', note: 'English, with pictures, about 110 GB' },
-  { name: 'WikiMed', note: 'Medical articles, about 2 GB' },
-  { name: 'First aid guidelines', note: 'Australian Resuscitation Council' },
-  { name: 'Wikibooks Cookbook', note: 'Recipes and techniques' },
-  { name: 'Australian food data', note: 'FSANZ food composition' },
-]
+import { count } from './format'
 
 export const widget: OverviewWidget = {
-  Card: ({ feature, onOpen }) => (
-    <SummaryCard
-      label={feature.name}
-      icon={feature.icon}
-      tone="dusk"
-      value="Empty"
-      caption="Nothing downloaded yet."
-      footer="Wikipedia, WikiMed and recipes, readable offline"
-      onOpen={onOpen}
-    />
-  ),
-  Detail: () => (
-    <>
-      <p style={{ margin: 0, lineHeight: 1.55 }}>
-        The library stores whole collections on this server so they work with no internet. Choosing and downloading them comes
-        with the Sources screen, next on the list.
-      </p>
-      <div className="rows">
-        {PLANNED.map((s) => (
-          <div key={s.name} className="row">
-            <span style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <strong>{s.name}</strong>
-              <span className="muted" style={{ fontSize: 13 }}>
-                {s.note}
-              </span>
-            </span>
-            <span className="mono">NOT YET</span>
-          </div>
-        ))}
-      </div>
-      <Link to="/library" className="btn secondary" style={{ alignSelf: 'flex-start', display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}>
-        Open Library
-      </Link>
-    </>
-  ),
+  Card: ({ feature, data, onOpen }) => {
+    const s = data.library
+    const dl = s?.download
+    return (
+      <SummaryCard
+        label={feature.name}
+        icon={feature.icon}
+        tone="dusk"
+        value={!s ? '—' : s.books === 0 ? (dl ? 'Downloading' : 'Empty') : count(s.articles)}
+        caption={
+          !s
+            ? "Couldn't read the library."
+            : !s.online
+              ? "The library server isn't running."
+              : s.books === 0
+                ? dl
+                  ? `${dl.title}, ${percent(dl.bytes, dl.sizeBytes)}%`
+                  : 'Nothing downloaded yet.'
+                : `articles in ${s.books === 1 ? '1 book' : `${s.books} books`}`
+        }
+        visual={
+          dl ? (
+            <div className="meter-track" aria-hidden="true">
+              <div style={{ width: `${percent(dl.bytes, dl.sizeBytes)}%`, background: 'var(--dusk)' }} />
+            </div>
+          ) : undefined
+        }
+        footer={
+          s && s.books > 0
+            ? dl
+              ? `Downloading ${dl.title}, ${percent(dl.bytes, dl.sizeBytes)}%`
+              : `${formatBytes(s.bytes)} readable offline`
+            : 'Wikipedia, WikiMed and guides, readable offline'
+        }
+        onOpen={onOpen}
+      />
+    )
+  },
+  Detail: ({ data }) => {
+    const s = data.library
+    const dl = s?.download
+    return (
+      <>
+        <p style={{ margin: 0, lineHeight: 1.55 }}>
+          {s && s.books > 0
+            ? `${count(s.articles)} articles across ${s.books === 1 ? 'one book' : `${s.books} books`}, taking ${formatBytes(s.bytes)}. Everything opens with no internet.`
+            : 'The library stores whole collections on this server, like Wikipedia and WikiMed, so they work with no internet. Choose them under Sources.'}
+        </p>
+        {dl && (
+          <Meter
+            label={dl.state === 'verifying' ? `Checking ${dl.title}` : `Downloading ${dl.title}`}
+            value={percent(dl.bytes, dl.sizeBytes)}
+            detail={`${formatBytes(dl.bytes)} of ${formatBytes(dl.sizeBytes)}${s && s.queued ? ` · ${s.queued} more waiting` : ''}`}
+          />
+        )}
+        {s && !s.online && <div className="notice warn">The library server isn't running, so books can't be opened right now.</div>}
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <Link to="/library" className="btn accent">
+            Open Library
+          </Link>
+          <Link to="/library/sources" className="btn secondary">
+            Sources
+          </Link>
+        </div>
+      </>
+    )
+  },
 }

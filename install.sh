@@ -96,7 +96,7 @@ cd "$SCRIPT_DIR"
 DIR="$SCRIPT_DIR"
 command -v git >/dev/null 2>&1 || apt_install git ca-certificates
 
-mkdir -p data/update data/backups
+mkdir -p data/update data/backups data/library
 chmod 700 data 2>/dev/null || true
 
 # --- Channel ------------------------------------------------------------------

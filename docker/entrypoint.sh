@@ -5,7 +5,7 @@
 set -eu
 umask 077
 
-mkdir -p /data /data/update /data/backups
+mkdir -p /data /data/update /data/backups /data/library
 
 if [ "$(id -u)" = "0" ]; then
   uid=$(stat -c %u /data)
@@ -14,6 +14,8 @@ if [ "$(id -u)" = "0" ]; then
   chown -R "$uid:$gid" /data
   # The updater on the host must be able to read and replace the update files.
   chmod 755 /data/update 2>/dev/null || true
+  # Kiwix runs as its own user and reads the library folder.
+  chmod 755 /data/library 2>/dev/null || true
   exec setpriv --reuid "$uid" --regid "$gid" --clear-groups -- "$@"
 fi
 

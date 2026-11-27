@@ -1,4 +1,5 @@
 import { getMonitor } from '#/features/internet/server'
+import { getLibrary } from '#/features/library/server'
 import type { WidgetData } from '#/platform/overview.types'
 import type { Platform } from './platform.server'
 
@@ -12,6 +13,7 @@ type Loaders = { [K in keyof WidgetData]-?: (p: Platform) => Promise<NonNullable
  */
 const LOADERS: Loaders = {
   internet: () => getMonitor()?.status() ?? null,
+  library: async () => (await getLibrary()?.status()) ?? null,
 }
 
 export async function loadWidgets(p: Platform): Promise<WidgetData> {
@@ -22,7 +24,7 @@ export async function loadWidgets(p: Platform): Promise<WidgetData> {
       .filter((id) => enabled.has(id))
       .map(async (id) => {
         try {
-          out[id] = await LOADERS[id](p)
+          ;(out as Record<string, unknown>)[id] = await LOADERS[id](p)
         } catch (err) {
           console.error(`[overview] ${id} failed:`, err)
           out[id] = null

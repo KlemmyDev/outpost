@@ -25,6 +25,7 @@ export interface FeatureServer {
 
 export class FeatureRuntime {
   private readonly running = new Set<string>()
+  private syncing: Promise<void> = Promise.resolve()
 
   constructor(
     private readonly servers: Readonly<Record<string, FeatureServer>>,
@@ -35,8 +36,19 @@ export class FeatureRuntime {
     return this.running.has(id)
   }
 
+  /** Resolves once the latest start/stop pass has finished, for requests that arrive mid-start. */
+  settled(): Promise<void> {
+    return this.syncing
+  }
+
   /** Starts what's newly on and stops what's newly off. */
-  async sync(features: readonly FeatureState[]): Promise<void> {
+  sync(features: readonly FeatureState[]): Promise<void> {
+    const run = this.syncing.then(() => this.syncNow(features))
+    this.syncing = run.catch(() => {})
+    return run
+  }
+
+  private async syncNow(features: readonly FeatureState[]): Promise<void> {
     for (const f of features) {
       const server = this.servers[f.id]
       if (!server) continue
