@@ -1,0 +1,43 @@
+name: Version
+
+# Every push to main gets today's CalVer (Brisbane time) if the version is from
+# an earlier day, so nightly installs always know which day's code they run.
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency: version
+
+jobs:
+  version:
+    if: ${{ !startsWith(github.event.head_commit.message, 'Version ') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - id: bump
+        run: echo "version=$(scripts/version.sh)" >> "$GITHUB_OUTPUT"
+      - name: Commit and push
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.bump.outputs.version }}
+        run: |
+          if git diff --quiet; then
+            echo "Already on $VERSION"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Version $VERSION"
+          for attempt in 1 2 3; do
+            git pull --rebase --quiet && git push && break
+            sleep 5
+          done
+          # A push made with GITHUB_TOKEN doesn't trigger other workflows.
+          gh workflow run ci.yml --ref main

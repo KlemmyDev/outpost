@@ -1,0 +1,25 @@
+# Run with install.sh, which builds with the right commit stamp, backs up
+# before updates and sets up dashboard updates. Settings live in .env.
+services:
+  outpost:
+    build:
+      context: .
+      args:
+        GIT_COMMIT: ${GIT_COMMIT:-}
+    image: outpost:latest
+    container_name: outpost
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      TZ: ${TZ:-Australia/Brisbane}
+      OUTPOST_FEATURES: ${OUTPOST_FEATURES:-}
+      OUTPOST_REPO: ${OUTPOST_REPO:-KlemmyDev/outpost}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+    volumes:
+      - ./data:/data
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
