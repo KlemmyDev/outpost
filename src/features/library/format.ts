@@ -23,6 +23,12 @@ export function count(n: number): string {
   return n.toLocaleString('en-AU')
 }
 
+/** "1 article", "586 articles"; collections of files (a handful of PDFs) say so instead. */
+export function articles(n: number): string {
+  if (n <= 1) return 'a collection of guides'
+  return `${count(n)} articles`
+}
+
 /** Minutes to read at about 230 words a minute. */
 export function readingTime(words: number): string {
   const min = Math.max(1, Math.round(words / 230))

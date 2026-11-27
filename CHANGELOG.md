@@ -8,6 +8,10 @@ CalVer (`YYYY.M.D`).
 
 ### Added
 
+- Cooking on the Sources screen: Public Domain Recipes, Based Cooking, FOSS
+  Cooking, GrimGrains, Seasoned Advice (cooking Q&A), the USDA home canning
+  guide and Food for Preppers, with one button to download them all (about
+  430 MB).
 - Power, from WattsMyPower's developer API with a read-only key: off-grid
   runtime (at this rate, through a usual night, and hour by hour through the
   forecast's solar and home use, charging from spare solar and stopping at the

@@ -1,7 +1,7 @@
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { formatBytes } from '#/platform/ui/format'
-import { ago, count, monthYear, readHref } from './format'
+import { ago, articles, count, monthYear, readHref } from './format'
 import { randomArticle } from './library.functions'
 import { BookIcon } from './ui/BookIcon'
 import { DownloadBar } from './ui/DownloadBar'
@@ -163,7 +163,7 @@ function BookCard({ book }: { book: Book }) {
           {(book.contentId === GUIDES_BOOK ? 'Saved' : isAppBook(book) ? 'Map' : flavourLabel(book.flavour)).toUpperCase()} · {monthYear(book.date).toUpperCase()}
         </span>
         <span className="muted">
-          {book.contentId === GUIDES_BOOK ? `${book.articleCount} guides` : isAppBook(book) ? 'Opens in its own viewer' : `${count(book.articleCount)} articles`}
+          {book.contentId === GUIDES_BOOK ? `${book.articleCount} guides` : isAppBook(book) ? 'Opens in its own viewer' : articles(book.articleCount)}
           {book.sizeBytes ? ` · ${formatBytes(book.sizeBytes)}` : ''}
         </span>
         {!isAppBook(book) && (

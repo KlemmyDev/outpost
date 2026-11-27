@@ -49,7 +49,7 @@ export interface CatalogPage {
 }
 
 /** A curated pick on the Sources screen, with each version Kiwix offers. */
-export type RecommendationGroup = 'essentials' | 'prepare'
+export type RecommendationGroup = 'essentials' | 'cooking' | 'prepare'
 
 export interface Recommendation {
   group: RecommendationGroup

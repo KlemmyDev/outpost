@@ -123,6 +123,9 @@ introductions only.
   doesn't ship them: your server downloads each from its publisher. PDFs are
   kept as published; web pages keep their text in the reader's layout, with
   their pictures and a link to the original. Saved guides are rechecked monthly.
+- **Cooking** picks from Kiwix: recipe collections, the Seasoned Advice cooking
+  Q&A and the USDA's home canning guide, all small, with one button to get them
+  all.
 - **Be prepared** picks from Kiwix: the offline map of Australia (opens in its
   own viewer), water treatment, food preparation, a post-disaster library and
   MedlinePlus.

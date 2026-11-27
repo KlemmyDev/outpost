@@ -1,7 +1,7 @@
 import { Link, useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 import { formatBytes, percent } from '#/platform/ui/format'
-import { count, monthYear } from './format'
+import { articles, count, monthYear } from './format'
 import { browseCatalog, checkBookUpdates, controlDownload, getDownloads, getRecommended, removeBook, setParallelDownloads, startDownload } from './library.functions'
 import { BookIcon } from './ui/BookIcon'
 import { DownloadBar } from './ui/DownloadBar'
@@ -41,6 +41,13 @@ const CATEGORIES: [string, string][] = [
   ['ted', 'TED talks'],
   ['phet', 'PhET simulations'],
   ['other', 'Other'],
+]
+
+/** The rows of picks on Sources, in order. The first sits under the "Recommended" heading. */
+const REC_GROUPS: { id: Recommendation['group']; title: string; note: string; all?: boolean }[] = [
+  { id: 'essentials', title: 'Recommended', note: '' },
+  { id: 'cooking', title: 'Cooking', note: 'Recipes, technique and preserving. Small enough to get them all; Wikibooks above has a big Cookbook too.', all: true },
+  { id: 'prepare', title: 'Be prepared', note: 'MAPS, WATER AND AFTER A DISASTER' },
 ]
 
 const ACTIVE = new Set<Download['state']>(['queued', 'downloading', 'verifying'])
@@ -259,7 +266,7 @@ function InstalledRow({ book, update, updating, onUpdate, onRemove }: { book: Bo
           <strong>{book.title}</strong>
           <span className="muted" style={{ fontSize: 13 }}>
             {isAppBook(book) ? 'Map' : flavourLabel(book.flavour)} · {monthYear(book.date)}
-            {isAppBook(book) ? '' : ` · ${count(book.articleCount)} articles`}{book.sizeBytes ? ` · ${formatBytes(book.sizeBytes)}` : ''}
+            {isAppBook(book) ? '' : ` · ${articles(book.articleCount)}`}{book.sizeBytes ? ` · ${formatBytes(book.sizeBytes)}` : ''}
           </span>
         </span>
       </span>
@@ -322,31 +329,54 @@ function Recommended({ ctx }: { ctx: EntryCtx }) {
         <div className="notice warn">{state.error}</div>
       ) : (
         <>
-          <div className="rec-grid">
-            {state.list
-              .filter((r) => r.group === 'essentials')
-              .map((r) => (
-                <RecCard key={r.name} rec={r} ctx={ctx} />
-              ))}
-          </div>
-          {state.list.some((r) => r.group === 'prepare') && (
-            <>
-              <div className="section-head" style={{ marginTop: 18 }}>
-                <h2 id="prep-title">Be prepared</h2>
-                <span className="mono">MAPS, WATER, FOOD AND AFTER A DISASTER</span>
-              </div>
-              <div className="rec-grid">
-                {state.list
-                  .filter((r) => r.group === 'prepare')
-                  .map((r) => (
+          {REC_GROUPS.map((g, i) => {
+            const list = state.list.filter((r) => r.group === g.id)
+            if (!list.length) return null
+            return (
+              <div key={g.id} className="lib-section">
+                {i > 0 && (
+                  <div className="section-head" style={{ marginTop: 18 }}>
+                    <h2 id={`rec-${g.id}`}>{g.title}</h2>
+                    {g.all ? <GetAll list={list} ctx={ctx} title={g.title} /> : <span className="mono">{g.note}</span>}
+                  </div>
+                )}
+                {i > 0 && g.all && (
+                  <p className="muted" style={{ margin: '-6px 0 0', fontSize: 14 }}>
+                    {g.note}
+                  </p>
+                )}
+                <div className="rec-grid">
+                  {list.map((r) => (
                     <RecCard key={r.name} rec={r} ctx={ctx} />
                   ))}
+                </div>
               </div>
-            </>
-          )}
+            )
+          })}
         </>
       )}
     </section>
+  )
+}
+
+/** One button for a whole row of small collections: whatever isn't here or on its way yet. */
+function GetAll({ list, ctx, title }: { list: Recommendation[]; ctx: EntryCtx; title: string }) {
+  const todo = list.map((r) => r.options[0]!).filter((e) => !ctx.installed.has(e.contentId) && !ctx.pending.has(e.contentId))
+  const bytes = todo.reduce((n, e) => n + e.sizeBytes, 0)
+  if (!todo.length) return <span className="mono">ALL {title.toUpperCase()} BOOKS ADDED</span>
+  const fits = ctx.free === null || bytes < ctx.free - MARGIN
+  return (
+    <button
+      type="button"
+      className="tool-btn accent"
+      disabled={!fits}
+      title={fits ? undefined : `Needs ${formatBytes(bytes)}`}
+      onClick={() => {
+        for (const e of todo) ctx.onDownload(e)
+      }}
+    >
+      Download all {todo.length} · {formatBytes(bytes)}
+    </button>
   )
 }
 
@@ -366,7 +396,7 @@ function RecCard({ rec, ctx }: { rec: Recommendation; ctx: EntryCtx }) {
         <span style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <strong style={{ fontSize: 17 }}>{rec.title}</strong>
           <span className="muted" style={{ fontSize: 13 }}>
-            {count(chosen.articleCount)} articles · {monthYear(chosen.date)}
+            {articles(chosen.articleCount)} · {monthYear(chosen.date)}
           </span>
         </span>
       </div>
@@ -484,7 +514,7 @@ function Browse({ ctx }: { ctx: EntryCtx }) {
                           {e.summary}
                         </span>
                         <span className="muted" style={{ fontSize: 12 }}>
-                          {flavourLabel(e.flavour)} · {monthYear(e.date)} · {count(e.articleCount)} articles
+                          {flavourLabel(e.flavour)} · {monthYear(e.date)} · {articles(e.articleCount)}
                         </span>
                       </span>
                     </span>
