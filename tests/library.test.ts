@@ -354,7 +354,7 @@ describe('downloads', () => {
     }) as typeof fetch
     const m = new DownloadManager(s, lib, ctx, slow, 2)
     await m.start()
-    const ids = []
+    const ids: number[] = []
     for (const n of ['a', 'b', 'c']) ids.push((await m.add({ ...entry, contentId: `test_${n}_2026-10`, url: `https://download.kiwix.org/zim/test/test_${n}_2026-10.zim` })).id)
     await until(() => running === 2)
     expect(s.download(ids[2]!)!.state).toBe('queued')
