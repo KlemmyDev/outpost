@@ -1,0 +1,15 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+.nitro
+.tanstack
+.output
+.vinxi
+__unconfig*
+
+# Outpost runtime state: databases, backups, the update protocol files and
+# secrets. Never commit these.
+/data
+.env
