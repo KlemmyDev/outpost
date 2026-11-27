@@ -269,6 +269,31 @@ keep_previous() {
   note "kept $old_version for rollback"
 }
 
+# Messages' radio: map MESHCORE_DEVICE into the container as /dev/meshcore,
+# but only when it's set and plugged in. Compose reads the override file by
+# itself; without a radio there's no device request at all.
+radio_override() {
+  local dev
+  dev="$(sed -n 's/^MESHCORE_DEVICE=//p' .env 2>/dev/null | tail -n 1 | tr -d '"'"'"' ')"
+  if [ -z "$dev" ]; then
+    rm -f docker-compose.override.yml
+    return 0
+  fi
+  if [ ! -e "$dev" ]; then
+    warn "MESHCORE_DEVICE is $dev, but it isn't there. Starting without the radio; plug it in and run: bash $DIR/install.sh start"
+    rm -f docker-compose.override.yml
+    return 0
+  fi
+  cat >docker-compose.override.yml <<YAML
+# Written by install.sh from MESHCORE_DEVICE in .env. Don't edit; change .env.
+services:
+  outpost:
+    devices:
+      - "$dev:/dev/meshcore"
+YAML
+  note "radio $dev mapped to /dev/meshcore"
+}
+
 build_and_start() {
   export GIT_COMMIT
   GIT_COMMIT="$(git rev-parse HEAD)"
@@ -314,6 +339,7 @@ rollback() {
     mv -f data/outpost.db.restoring data/outpost.db
   fi
   git checkout --quiet --detach "$commit"
+  radio_override
   export GIT_COMMIT="$commit"
   if $DOCKER image inspect "$IMAGE:previous" >/dev/null 2>&1; then
     $DOCKER tag "$IMAGE:previous" "$IMAGE:latest"
@@ -338,11 +364,12 @@ uninstall() {
 case "$MODE" in
   rollback) ensure_docker; rollback ;;
   uninstall) ensure_docker; uninstall ;;
-  start) ensure_docker; setup_env; $DC up -d; wait_healthy ;;
+  start) ensure_docker; setup_env; radio_override; $DC up -d; wait_healthy ;;
   update)
     update_code
     ensure_docker
     setup_env
+    radio_override
     backup
     setup_updater
     keep_previous

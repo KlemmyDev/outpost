@@ -136,6 +136,11 @@ CalVer (`YYYY.M.D`).
 
 ### Fixed
 
+- Outpost wouldn't start after updating in some Proxmox containers (502 from a
+  reverse proxy): Docker was always asked for a radio device, which an
+  unprivileged container can't grant. The radio is now only mapped when
+  `MESHCORE_DEVICE` is set and plugged in, through a generated
+  `docker-compose.override.yml`.
 - Files Kiwix sends compressed (scripts, pages) were cut short by the Library's
   proxy, breaking "Original layout" pages and offline maps. Proxied files now
   revalidate with Kiwix instead of being cached for a day.

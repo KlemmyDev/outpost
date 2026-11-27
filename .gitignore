@@ -13,3 +13,6 @@ __unconfig*
 # secrets. Never commit these.
 /data
 .env
+
+# Written by install.sh when a MeshCore radio is configured.
+docker-compose.override.yml
