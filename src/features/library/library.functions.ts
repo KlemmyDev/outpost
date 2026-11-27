@@ -100,8 +100,24 @@ export const getArticle = createServerFn({ method: 'GET' })
       const path = main.location ?? 'index.html'
       return { kind: 'file', url: rawUrl(book.contentId, path), title: book.title, bookTitle: book.title }
     }
-    const page = await library.kiwix.page(book.contentId, data.path)
-    if (page.status >= 300 && page.status < 400 && page.location !== null) return { kind: 'redirect', path: page.location }
+    let page = await library.kiwix.page(book.contentId, data.path)
+    // Website copies (zimit) name folder pages with a trailing slash, which the
+    // reader's address loses. Try again with it, and read the page as that path
+    // so its relative links resolve from the folder.
+    if (page.status === 404 && data.path && !data.path.endsWith('/')) {
+      const withSlash = await library.kiwix.page(book.contentId, `${data.path}/`)
+      if (withSlash.status !== 404) {
+        page = withSlash
+        data.path = `${data.path}/`
+      }
+    }
+    if (page.status >= 300 && page.status < 400 && page.location !== null) {
+      // A redirect to the same page with a slash added is handled above; don't loop on it.
+      if (page.location.replace(/\/$/, '') !== data.path.replace(/\/$/, '')) return { kind: 'redirect', path: page.location }
+      const loc = page.location
+      page = await library.kiwix.page(book.contentId, loc)
+      data.path = loc
+    }
     if (page.status === 404) return { kind: 'missing', contentId: book.contentId, path: data.path, reason: `${book.title} has no page called “${data.path}”.` }
     if (!page.body) {
       if (page.status >= 200 && page.status < 300) return { kind: 'file', url: rawUrl(book.contentId, data.path), pdf: page.contentType.includes('pdf') }

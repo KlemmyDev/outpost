@@ -149,6 +149,10 @@ CalVer (`YYYY.M.D`).
 
 ### Fixed
 
+- Books copied from websites (FOSS Cooking, Based Cooking and other zimit
+  collections) said they had "no page called …": their folder pages end in a
+  slash that the reader's address dropped. The reader now finds them, and their
+  links work.
 - Outpost wouldn't start after updating in some Proxmox containers (502 from a
   reverse proxy): Docker was always asked for a radio device, which an
   unprivileged container can't grant. The radio is now only mapped when
