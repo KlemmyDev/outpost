@@ -8,6 +8,14 @@ CalVer (`YYYY.M.D`).
 
 ### Added
 
+- Interactive charts: legends that show and hide each series, dots on the
+  hovered point, click or Enter to pin a tooltip, lines that draw in and bars
+  that grow when a chart appears or its range changes, and hovering an event
+  shades its time on every chart and the uptime timeline.
+- The uptime timeline can be read with the arrow keys, pinned by click, and
+  its blocks lift on hover.
+- Panels slide and fade in and out, with their contents rising in one after
+  another. Reduced-motion settings turn the animations off.
 - Internet monitoring: a probe on a configurable interval (default every
   minute) measures latency, jitter and packet loss to Cloudflare, Google DNS
   and GitHub, plus DNS time. Scheduled speed tests (default every 6 hours,

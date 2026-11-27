@@ -747,6 +747,102 @@ button.summary-card:hover {
   border-radius: 8px;
 }
 
+.chart-plot.pinned .chart-hit {
+  cursor: pointer;
+}
+
+.legend-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ironbark);
+  font: 13px var(--font-ui);
+  cursor: pointer;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.legend-btn[aria-pressed='false'] {
+  opacity: 0.5;
+  background: transparent;
+  text-decoration: line-through;
+}
+
+.legend-btn:hover {
+  border-color: #d6d1c4;
+}
+
+/* Lines draw in left to right; bars grow from the baseline. */
+.chart-reveal {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: chart-reveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes chart-reveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.chart-bars rect {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: bar-grow 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: opacity 0.15s;
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+.chart-band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(194, 101, 42, 0.12);
+  border-left: 1px solid rgba(194, 101, 42, 0.5);
+  border-right: 1px solid rgba(194, 101, 42, 0.5);
+  pointer-events: none;
+  animation: backdrop-in 0.2s ease-out both;
+}
+
+.chart-band > span {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  font: 11px var(--font-mono);
+  color: var(--ochre-ink);
+  white-space: nowrap;
+}
+
+.chart-dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border: 3px solid;
+  border-radius: 50%;
+  background: var(--paper);
+  pointer-events: none;
+  transition: top 0.12s ease-out, left 0.08s linear;
+}
+
+.tip-pin {
+  font-weight: 400;
+  opacity: 0.7;
+}
+
 .chart-cursor {
   position: absolute;
   top: 0;
@@ -772,6 +868,19 @@ button.summary-card:hover {
   font-size: 13px;
   pointer-events: none;
   white-space: nowrap;
+  animation: tip-in 0.15s ease-out both;
+  transition: left 0.08s linear;
+}
+
+@keyframes tip-in {
+  from {
+    opacity: 0;
+    margin-top: 4px;
+  }
+}
+
+.chart-cursor {
+  transition: left 0.08s linear;
 }
 
 .chart-tip > span {
@@ -819,11 +928,46 @@ button.summary-card:hover {
   height: 36px;
 }
 
+.strip {
+  border-radius: 6px;
+}
+
 .strip > span {
   flex: 1;
   min-width: 1px;
   border-radius: 3px;
-  transition: opacity 0.1s;
+  cursor: pointer;
+  transform-origin: bottom;
+  transition: opacity 0.12s, transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: strip-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.strip > span:hover,
+.strip > span.on {
+  transform: scaleY(1.22);
+}
+
+.strip > span.band {
+  box-shadow: 0 0 0 2px var(--ironbark);
+  opacity: 1 !important;
+}
+
+@keyframes strip-in {
+  from {
+    opacity: 0;
+    transform: scaleY(0.3);
+  }
+}
+
+.event-row {
+  cursor: default;
+  transition: background 0.15s;
+}
+
+.event-row:hover,
+.event-row.active,
+.event-row:focus-visible {
+  background: #ece8de;
 }
 
 .strip-foot {
@@ -848,13 +992,16 @@ button.summary-card:hover {
 }
 
 .sheet-backdrop {
-  flex: 1;
+  position: absolute;
+  inset: 0;
   border: 0;
-  background: rgba(31, 36, 33, 0.22);
+  background: rgba(31, 36, 33, 0.24);
   cursor: pointer;
+  animation: backdrop-in 0.24s ease-out both;
 }
 
 .sheet {
+  position: relative;
   width: min(520px, 100%);
   height: 100%;
   overflow-y: auto;
@@ -864,7 +1011,53 @@ button.summary-card:hover {
   gap: 22px;
   background: var(--paper);
   box-shadow: -12px 0 40px rgba(31, 36, 33, 0.14);
-  animation: sheet-in 0.18s ease-out;
+  animation: sheet-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.sheet-body {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* The panel's contents rise in one after another, just behind the panel. */
+.sheet-body > * {
+  animation: rise-in 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.sheet-body > *:nth-child(1) { animation-delay: 0.06s; }
+.sheet-body > *:nth-child(2) { animation-delay: 0.1s; }
+.sheet-body > *:nth-child(3) { animation-delay: 0.14s; }
+.sheet-body > *:nth-child(4) { animation-delay: 0.18s; }
+.sheet-body > *:nth-child(n + 5) { animation-delay: 0.22s; }
+
+.sheet-layer.leaving .sheet {
+  animation: sheet-out 0.22s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+.sheet-layer.leaving .sheet-backdrop {
+  animation: backdrop-out 0.22s ease-in both;
+}
+
+@keyframes backdrop-in {
+  from { opacity: 0; }
+}
+
+@keyframes backdrop-out {
+  to { opacity: 0; }
+}
+
+@keyframes sheet-out {
+  to {
+    transform: translateX(48px);
+    opacity: 0;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
 }
 
 .sheet-head {
@@ -880,14 +1073,33 @@ button.summary-card:hover {
 
 @keyframes sheet-in {
   from {
-    transform: translateX(24px);
+    transform: translateX(64px);
     opacity: 0;
   }
 }
 
+/* Cards respond to touch and hover. */
+button.summary-card:active {
+  transform: scale(0.985);
+}
+
+button.summary-card {
+  transition: border-color 0.15s, box-shadow 0.2s, transform 0.12s;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .sheet {
-    animation: none;
+  .sheet,
+  .sheet-backdrop,
+  .sheet-body > *,
+  .sheet-layer.leaving .sheet,
+  .sheet-layer.leaving .sheet-backdrop,
+  .chart-reveal,
+  .chart-bars rect,
+  .chart-tip,
+  .chart-dot,
+  .strip > span {
+    animation: none !important;
+    transition: none !important;
   }
 }
 

@@ -40,6 +40,11 @@ export function InternetDashboard({ data, range }: { data: DashboardData; range:
   const latest = status.latest
   const [busy, setBusy] = useState<'probe' | 'speed' | null>(status.speedTestRunning ? 'speed' : null)
   const [error, setError] = useState<string | null>(null)
+  // The event being hovered or focused in the list, shaded on every chart.
+  const [focusEvent, setFocusEvent] = useState<NetEvent | null>(null)
+  const highlight = focusEvent
+    ? { from: focusEvent.startedAt, to: focusEvent.endedAt ?? Date.now(), label: EVENT_WORDS[focusEvent.kind].name }
+    : null
   const fmt = timeFormatter(range)
 
   // Refresh as often as new readings arrive, but no more than every 30 s.
@@ -131,6 +136,7 @@ export function InternetDashboard({ data, range }: { data: DashboardData; range:
           </span>
         </div>
         <StatusStrip
+          highlight={highlight}
           label={`Internet health over the last ${RANGE_LABEL[range].toLowerCase()}`}
           formatTime={fmt}
           items={stats.buckets.map((b) => ({
@@ -154,6 +160,7 @@ export function InternetDashboard({ data, range }: { data: DashboardData; range:
           times={times}
           unit="ms"
           formatTime={fmt}
+          highlight={highlight}
           threshold={{ value: settings.latencyWarnMs, label: `Struggling above ${settings.latencyWarnMs} ms` }}
           series={[
             { key: 'lat', label: 'Latency', color: 'var(--dusk)', values: stats.buckets.map((b) => b.latencyAvg) },
@@ -175,6 +182,7 @@ export function InternetDashboard({ data, range }: { data: DashboardData; range:
           decimals={1}
           yMax={lossMax}
           formatTime={fmt}
+          highlight={highlight}
           threshold={{ value: settings.lossWarnPct, label: `Struggling at ${settings.lossWarnPct}%` }}
           series={[{ key: 'loss', label: 'Packet loss', color: 'var(--ochre)', kind: 'bar', values: stats.buckets.map((b) => b.lossAvg) }]}
         />
@@ -213,14 +221,23 @@ export function InternetDashboard({ data, range }: { data: DashboardData; range:
       <section className="card" aria-labelledby="events-title">
         <div className="card-head">
           <h2 id="events-title">Events</h2>
-          <span className="mono">{stats.events.length} IN THIS RANGE</span>
+          <span className="mono">{stats.events.length} IN THIS RANGE · HOVER ONE TO SEE IT ON THE CHARTS</span>
         </div>
         {stats.events.length === 0 ? (
           <div className="notice good">No outages or slow periods in the last {RANGE_LABEL[range].toLowerCase()}.</div>
         ) : (
           <div className="rows">
             {stats.events.map((e) => (
-              <div key={e.id} className="row">
+              <div
+                key={e.id}
+                className={`row event-row${focusEvent?.id === e.id ? ' active' : ''}`}
+                tabIndex={0}
+                aria-label={`${EVENT_WORDS[e.kind].name}, ${shortTime(e.startedAt)}, ${lastedLabel(e)}. Shows this time on the charts.`}
+                onPointerEnter={() => setFocusEvent(e)}
+                onPointerLeave={() => setFocusEvent(null)}
+                onFocus={() => setFocusEvent(e)}
+                onBlur={() => setFocusEvent(null)}
+              >
                 <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <span className="dot" style={{ background: EVENT_WORDS[e.kind].tone }} aria-hidden="true" />
                   <span style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
