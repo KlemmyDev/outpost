@@ -130,6 +130,25 @@ introductions only.
   and night themes, five text sizes, saved pages and history. **Original
   layout** opens the page as the book made it, sandboxed.
 
+## Map
+
+**Map** draws the offline map with MapLibre in Outpost's own style, light or
+night. The map file is a Kiwix maps ZIM (the map of Australia is about 1.9 GB),
+downloaded from the Map page or Library › Sources, so the Map needs the
+Library on.
+
+- Search places by name: Outpost reads the map's tiles once and builds its own
+  place index (towns, suburbs, peaks, lakes), so search works offline. Type
+  coordinates (`-33.87, 151.21`, `33.87S 151.21E`) or MGRS (`56H LH 34368 50948`)
+  to jump to a spot.
+- Tap to drop a pin; save it as a waypoint (home, meeting point, water, fuel,
+  medical, shelter, hazard), with notes. Pins can be dragged to move them.
+  Waypoints are shared by everyone at home, and export as GPX.
+- Measure distances leg by leg, with compass directions. Positions show in
+  decimal, degrees-minutes-seconds and MGRS.
+- "Me" shows your location only when Outpost is opened over HTTPS (or on the
+  server itself); browsers don't share location with plain-HTTP pages.
+
 ## Development
 
 Needs Node 24.

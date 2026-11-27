@@ -2,6 +2,8 @@
 @import '@fontsource-variable/bricolage-grotesque';
 @import '@fontsource-variable/geist';
 @import '@fontsource-variable/geist-mono';
+/* MapLibre's control and popup styles, for the Map. */
+@import 'maplibre-gl/dist/maplibre-gl.css';
 
 /* Beacon design tokens, from the style guide v0.3. */
 :root {
@@ -2531,4 +2533,636 @@ a.row.lib-row-link:hover {
 
 .guide-topic .rows {
   animation: suggest-in 0.16s ease-out;
+}
+
+/* ── Map ──────────────────────────────────────────────────────────────── */
+
+
+.map-screen {
+  --map-ink: #1f2421;
+  --map-card: rgba(255, 255, 255, 0.94);
+  --map-line: rgba(31, 36, 33, 0.12);
+  position: relative;
+  height: calc(100dvh - var(--map-top, 64px));
+  overflow: hidden;
+  background: #e9e5dc;
+}
+
+.map-screen.theme-night {
+  --map-ink: #e7e3da;
+  --map-card: rgba(24, 29, 28, 0.94);
+  --map-line: rgba(231, 227, 218, 0.14);
+  background: #0f1419;
+}
+
+.map-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.map-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--stone);
+  font-size: 15px;
+}
+
+/* Floating cards over the map */
+
+.map-side {
+  position: absolute;
+  z-index: 3;
+  top: 16px;
+  left: 16px;
+  bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 360px;
+  pointer-events: none;
+}
+
+.map-side > * {
+  pointer-events: auto;
+}
+
+.map-search,
+.map-panel,
+.map-tools,
+.map-coords {
+  border: 1px solid var(--map-line);
+  background: var(--map-card);
+  color: var(--map-ink);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 10px 30px rgba(15, 20, 25, 0.16);
+}
+
+.map-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border-radius: 999px;
+}
+
+.map-search input {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: inherit;
+  font: 400 16px var(--font-ui);
+}
+
+.map-search:focus-within {
+  box-shadow: 0 0 0 3px rgba(47, 111, 174, 0.35), 0 10px 30px rgba(15, 20, 25, 0.16);
+}
+
+.map-results {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  max-height: 50vh;
+  overflow-y: auto;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border: 1px solid var(--map-line);
+  border-radius: 20px;
+  background: var(--map-card);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 18px 40px rgba(15, 20, 25, 0.2);
+  animation: suggest-in 0.16s ease-out;
+}
+
+.map-results li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.map-results li .muted {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.map-results li[aria-selected='true'] {
+  background: rgba(127, 127, 127, 0.14);
+}
+
+.map-results .grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.map-results .map-results-empty {
+  cursor: default;
+  color: var(--stone);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.theme-night .muted,
+.theme-night .map-results .map-results-empty {
+  color: #a7ada7;
+}
+
+.map-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+.map-panel-grip {
+  display: none;
+}
+
+.map-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  overflow-y: auto;
+  animation: suggest-in 0.18s ease-out;
+}
+
+.map-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.map-panel .mono {
+  color: inherit;
+  opacity: 0.7;
+}
+
+.map-title {
+  font-size: 26px;
+  line-height: 1.1;
+}
+
+.map-notes {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.map-from {
+  margin: 0;
+  font-size: 14px;
+}
+
+.map-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.map-panel .tool-btn {
+  background: transparent;
+  color: inherit;
+  border-color: var(--map-line);
+}
+
+.map-panel .tool-btn.accent {
+  background: var(--ochre);
+  border-color: var(--ochre);
+  color: #fff;
+}
+
+.map-panel .tool-btn.danger {
+  background: var(--flare);
+  border-color: var(--flare);
+  color: #fff;
+}
+
+.theme-night .link-btn {
+  color: #8fb9e3;
+}
+
+.map-coord-list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(127, 127, 127, 0.1);
+}
+
+.map-coord-list > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.map-coord-list dt {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.map-coord-list dd {
+  margin: 0;
+}
+
+.map-coord-list dd button {
+  padding: 3px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: 500 13px var(--font-mono);
+  text-align: right;
+  cursor: copy;
+}
+
+.map-copied {
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--ironbark);
+  color: #fff;
+  font-size: 12px;
+}
+
+.map-legs {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+.map-legs li {
+  display: flex;
+  justify-content: space-between;
+}
+
+.map-wp-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0 -8px;
+  padding: 0;
+  list-style: none;
+}
+
+.map-wp-list button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 8px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: inherit;
+  font: 15px var(--font-ui);
+  text-align: left;
+  cursor: pointer;
+}
+
+.map-wp-list button:hover {
+  background: rgba(127, 127, 127, 0.12);
+}
+
+.map-wp-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.map-wp-list .muted {
+  font-size: 13px;
+}
+
+.kind-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kind-dot {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  font: 700 12px var(--font-ui);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.kind-dot.small {
+  width: 20px;
+  height: 20px;
+  font-size: 11px;
+}
+
+/* Waypoint form */
+
+.wp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wp-form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.wp-form input,
+.wp-form textarea {
+  padding: 10px 12px;
+  border: 1px solid var(--map-line);
+  border-radius: 12px;
+  background: rgba(127, 127, 127, 0.08);
+  color: inherit;
+  font: 15px var(--font-ui);
+  resize: vertical;
+}
+
+.kind-picker {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.kind-picker legend {
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.kind-picker label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid var(--map-line);
+  border-radius: 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.kind-picker label.on {
+  border-color: var(--ochre);
+  box-shadow: inset 0 0 0 1px var(--ochre);
+}
+
+.kind-picker input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.kind-picker label:has(input:focus-visible) {
+  outline: 3px solid var(--dusk);
+  outline-offset: 2px;
+}
+
+/* Tools and coordinates */
+
+.map-tools {
+  position: absolute;
+  z-index: 3;
+  top: 120px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 18px;
+}
+
+.map-tool {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 58px;
+  padding: 8px 4px 6px;
+  border: 0;
+  border-radius: 14px;
+  background: none;
+  color: inherit;
+  font: 500 11px var(--font-ui);
+  cursor: pointer;
+}
+
+.map-tool:hover {
+  background: rgba(127, 127, 127, 0.14);
+}
+
+.map-tool.on {
+  background: var(--ochre);
+  color: #fff;
+}
+
+.map-tool-letter {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font: 700 10px var(--font-ui);
+}
+
+.map-coords {
+  position: absolute;
+  z-index: 3;
+  left: 392px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font: 500 13px var(--font-mono);
+  cursor: pointer;
+}
+
+.map-coords .mono {
+  font-size: 10px;
+  color: inherit;
+  opacity: 0.6;
+}
+
+/* The pin, and you */
+
+.map-pin {
+  width: 30px;
+  height: 40px;
+  background: no-repeat center/contain
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 40'%3E%3Cpath d='M15 39C15 39 2 23.5 2 14a13 13 0 0 1 26 0c0 9.5-13 25-13 25z' fill='%23C2652A' stroke='white' stroke-width='2.5'/%3E%3Ccircle cx='15' cy='14' r='5' fill='white'/%3E%3C/svg%3E");
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.3));
+  animation: pin-drop 0.3s ease-out;
+}
+
+.map-pin.dragging {
+  cursor: grab;
+  animation: pin-drop 0.3s ease-out, pin-bob 1.4s ease-in-out 0.3s infinite;
+}
+
+@keyframes pin-drop {
+  from {
+    transform: translateY(-16px);
+    opacity: 0;
+  }
+}
+
+@keyframes pin-bob {
+  50% {
+    margin-top: -4px;
+  }
+}
+
+.map-me {
+  width: 18px;
+  height: 18px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: #2a78d6;
+  box-shadow: 0 0 0 8px rgba(42, 120, 214, 0.25);
+}
+
+/* MapLibre's own controls, in Outpost's style */
+
+.map-screen .maplibregl-ctrl-group {
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(15, 20, 25, 0.16);
+}
+
+.map-screen .maplibregl-ctrl-scale {
+  border-color: var(--map-ink);
+  background: var(--map-card);
+  color: var(--map-ink);
+  font: 11px var(--font-ui);
+}
+
+.theme-night .maplibregl-ctrl-group {
+  background: #1d2322;
+}
+
+.theme-night .maplibregl-ctrl-group button .maplibregl-ctrl-icon {
+  filter: invert(0.9);
+}
+
+/* No map yet */
+
+.map-empty-page {
+  position: relative;
+  min-height: calc(100dvh - 64px);
+  justify-content: center;
+}
+
+.map-empty-art {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 59px, rgba(31, 36, 33, 0.05) 59px 60px),
+    repeating-linear-gradient(90deg, transparent 0 59px, rgba(31, 36, 33, 0.05) 59px 60px),
+    radial-gradient(circle at 70% 40%, rgba(78, 154, 122, 0.12), transparent 50%);
+}
+
+.map-empty {
+  max-width: 620px;
+  gap: 16px;
+  padding: 32px;
+}
+
+/* Phones: search on top, the panel as a sheet along the bottom */
+
+@media (max-width: 760px) {
+  .map-side {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    width: auto;
+    justify-content: space-between;
+  }
+
+  .map-panel {
+    max-height: 48dvh;
+  }
+
+  .map-panel-grip {
+    display: grid;
+    place-items: center;
+    height: 22px;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  .map-panel-grip > span:first-child {
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: currentColor;
+    opacity: 0.3;
+  }
+
+  .map-screen:not(.panel-open) .map-panel-body {
+    display: none;
+  }
+
+  .map-panel-body {
+    padding-top: 4px;
+  }
+
+  .map-tools {
+    top: 70px;
+  }
+
+  .map-coords {
+    display: none;
+  }
+
+  /* Pinch zooms on phones; the tools take that corner. */
+  .map-screen .maplibregl-ctrl-top-right {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-pin,
+  .map-pin.dragging,
+  .map-panel-body,
+  .map-results {
+    animation: none;
+  }
 }

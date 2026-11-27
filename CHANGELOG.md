@@ -8,6 +8,21 @@ CalVer (`YYYY.M.D`).
 
 ### Added
 
+- Map: the offline map drawn with MapLibre in Outpost's style, with paper and
+  night themes, a remembered view, and a "Whole map" button. Map files are
+  Kiwix maps ZIMs downloaded through the Library (one tap for the map of
+  Australia when there's none yet).
+- Offline place search: a place index built in the background from the map's
+  own tiles (states, cities, towns, villages, suburbs, peaks, lakes), with
+  progress shown while it builds. Search also finds waypoints, coordinates and
+  MGRS references.
+- Waypoints: drop a pin, save it with a kind (home, meeting point, water, fuel,
+  medical, shelter, hazard, other) and notes, drag to move, edit, delete, see
+  distance and direction from home, and export as GPX.
+- Measuring: tap out a route to see the total and each leg with its direction.
+- Coordinates in decimal, degrees-minutes-seconds and MGRS, tap to copy.
+- The Map card on the Overview shows the map and waypoints, or download
+  progress. The Map now requires the Library.
 - Australian guides in the Library: 42 official documents (ANZCOR first aid
   guidelines and flowcharts, Red Cross RediPlan, NSW RFS and CFA bushfire
   plans, Get Ready Queensland cards, the Australian Dietary Guidelines and

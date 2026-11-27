@@ -25,6 +25,7 @@ import { Route as LibrarySearchRouteImport } from './routes/library/search'
 import { Route as LibrarySourcesRouteImport } from './routes/library/sources'
 import { Route as ApiFeaturesIndexRouteImport } from './routes/api/features/index'
 import { Route as ApiFeaturesIdRouteImport } from './routes/api/features/$id'
+import { Route as ApiMapWaypointsDotgpxRouteImport } from './routes/api/map/waypoints[.]gpx'
 import { Route as ApiUpdatesIndexRouteImport } from './routes/api/updates/index'
 import { Route as ApiUpdatesChannelRouteImport } from './routes/api/updates/channel'
 import { Route as ApiUpdatesCheckRouteImport } from './routes/api/updates/check'
@@ -114,6 +115,11 @@ const ApiFeaturesIdRoute = ApiFeaturesIdRouteImport.update({
   path: '/api/features/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMapWaypointsDotgpxRoute = ApiMapWaypointsDotgpxRouteImport.update({
+  id: '/api/map/waypoints.gpx',
+  path: '/api/map/waypoints.gpx',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiUpdatesIndexRoute = ApiUpdatesIndexRouteImport.update({
   id: '/api/updates/',
   path: '/api/updates/',
@@ -171,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/library/sources': typeof LibrarySourcesRoute
   '/library/': typeof LibraryIndexRoute
   '/api/features/$id': typeof ApiFeaturesIdRoute
+  '/api/map/waypoints.gpx': typeof ApiMapWaypointsDotgpxRoute
   '/api/updates/channel': typeof ApiUpdatesChannelRoute
   '/api/updates/check': typeof ApiUpdatesCheckRoute
   '/api/updates/install': typeof ApiUpdatesInstallRoute
@@ -196,6 +203,7 @@ export interface FileRoutesByTo {
   '/library/sources': typeof LibrarySourcesRoute
   '/library': typeof LibraryIndexRoute
   '/api/features/$id': typeof ApiFeaturesIdRoute
+  '/api/map/waypoints.gpx': typeof ApiMapWaypointsDotgpxRoute
   '/api/updates/channel': typeof ApiUpdatesChannelRoute
   '/api/updates/check': typeof ApiUpdatesCheckRoute
   '/api/updates/install': typeof ApiUpdatesInstallRoute
@@ -223,6 +231,7 @@ export interface FileRoutesById {
   '/library/sources': typeof LibrarySourcesRoute
   '/library/': typeof LibraryIndexRoute
   '/api/features/$id': typeof ApiFeaturesIdRoute
+  '/api/map/waypoints.gpx': typeof ApiMapWaypointsDotgpxRoute
   '/api/updates/channel': typeof ApiUpdatesChannelRoute
   '/api/updates/check': typeof ApiUpdatesCheckRoute
   '/api/updates/install': typeof ApiUpdatesInstallRoute
@@ -251,6 +260,7 @@ export interface FileRouteTypes {
     | '/library/sources'
     | '/library/'
     | '/api/features/$id'
+    | '/api/map/waypoints.gpx'
     | '/api/updates/channel'
     | '/api/updates/check'
     | '/api/updates/install'
@@ -276,6 +286,7 @@ export interface FileRouteTypes {
     | '/library/sources'
     | '/library'
     | '/api/features/$id'
+    | '/api/map/waypoints.gpx'
     | '/api/updates/channel'
     | '/api/updates/check'
     | '/api/updates/install'
@@ -302,6 +313,7 @@ export interface FileRouteTypes {
     | '/library/sources'
     | '/library/'
     | '/api/features/$id'
+    | '/api/map/waypoints.gpx'
     | '/api/updates/channel'
     | '/api/updates/check'
     | '/api/updates/install'
@@ -325,6 +337,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   ApiHealthzRoute: typeof ApiHealthzRoute
   ApiFeaturesIdRoute: typeof ApiFeaturesIdRoute
+  ApiMapWaypointsDotgpxRoute: typeof ApiMapWaypointsDotgpxRoute
   ApiUpdatesChannelRoute: typeof ApiUpdatesChannelRoute
   ApiUpdatesCheckRoute: typeof ApiUpdatesCheckRoute
   ApiUpdatesInstallRoute: typeof ApiUpdatesInstallRoute
@@ -449,6 +462,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiFeaturesIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/map/waypoints.gpx': {
+      id: '/api/map/waypoints.gpx'
+      path: '/api/map/waypoints.gpx'
+      fullPath: '/api/map/waypoints.gpx'
+      preLoaderRoute: typeof ApiMapWaypointsDotgpxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/updates/': {
       id: '/api/updates/'
       path: '/api/updates'
@@ -539,6 +559,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   ApiHealthzRoute: ApiHealthzRoute,
   ApiFeaturesIdRoute: ApiFeaturesIdRoute,
+  ApiMapWaypointsDotgpxRoute: ApiMapWaypointsDotgpxRoute,
   ApiUpdatesChannelRoute: ApiUpdatesChannelRoute,
   ApiUpdatesCheckRoute: ApiUpdatesCheckRoute,
   ApiUpdatesInstallRoute: ApiUpdatesInstallRoute,

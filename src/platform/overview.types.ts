@@ -1,5 +1,6 @@
 import type { InternetStatus } from '#/features/internet/types'
 import type { LibraryStatus } from '#/features/library/types'
+import type { MapStatus } from '#/features/map/types'
 
 /** Shared between the server and the Overview UI. No Node imports. */
 
@@ -12,6 +13,7 @@ import type { LibraryStatus } from '#/features/library/types'
 export interface WidgetData {
   internet?: InternetStatus | null
   library?: LibraryStatus | null
+  map?: MapStatus | null
 }
 
 export interface ServerStats {

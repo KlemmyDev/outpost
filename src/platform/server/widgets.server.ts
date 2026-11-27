@@ -1,5 +1,6 @@
 import { getMonitor } from '#/features/internet/server'
 import { getLibrary } from '#/features/library/server'
+import { getMap } from '#/features/map/server'
 import type { WidgetData } from '#/platform/overview.types'
 import type { Platform } from './platform.server'
 
@@ -14,6 +15,7 @@ type Loaders = { [K in keyof WidgetData]-?: (p: Platform) => Promise<NonNullable
 const LOADERS: Loaders = {
   internet: () => getMonitor()?.status() ?? null,
   library: async () => (await getLibrary()?.status()) ?? null,
+  map: async () => (await getMap()?.status()) ?? null,
 }
 
 export async function loadWidgets(p: Platform): Promise<WidgetData> {

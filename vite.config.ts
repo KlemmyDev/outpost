@@ -6,4 +6,6 @@ import { nitro } from 'nitro/vite'
 export default defineConfig({
   resolve: { tsconfigPaths: true },
   plugins: [nitro(), tanstackStart(), viteReact()],
+  // MapLibre's tile worker is an ES module.
+  worker: { format: 'es' },
 })
