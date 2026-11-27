@@ -19,6 +19,8 @@ import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as PowerRouteImport } from './routes/power'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ApiHealthzRouteImport } from './routes/api/healthz'
+import { Route as FirstAidIndexRouteImport } from './routes/first-aid/index'
+import { Route as FirstAidTopicRouteImport } from './routes/first-aid/$topic'
 import { Route as LibraryIndexRouteImport } from './routes/library/index'
 import { Route as LibrarySavedRouteImport } from './routes/library/saved'
 import { Route as LibrarySearchRouteImport } from './routes/library/search'
@@ -84,6 +86,16 @@ const ApiHealthzRoute = ApiHealthzRouteImport.update({
   id: '/api/healthz',
   path: '/api/healthz',
   getParentRoute: () => rootRouteImport,
+} as any)
+const FirstAidIndexRoute = FirstAidIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FirstAidRoute,
+} as any)
+const FirstAidTopicRoute = FirstAidTopicRouteImport.update({
+  id: '/$topic',
+  path: '/$topic',
+  getParentRoute: () => FirstAidRoute,
 } as any)
 const LibraryIndexRoute = LibraryIndexRouteImport.update({
   id: '/',
@@ -164,7 +176,7 @@ const ApiLibraryRawBookSplatRoute = ApiLibraryRawBookSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/emergency': typeof EmergencyRoute
-  '/first-aid': typeof FirstAidRoute
+  '/first-aid': typeof FirstAidRouteWithChildren
   '/internet': typeof InternetRoute
   '/library': typeof LibraryRouteWithChildren
   '/map': typeof MapRoute
@@ -172,9 +184,11 @@ export interface FileRoutesByFullPath {
   '/power': typeof PowerRoute
   '/settings': typeof SettingsRoute
   '/api/healthz': typeof ApiHealthzRoute
+  '/first-aid/$topic': typeof FirstAidTopicRoute
   '/library/saved': typeof LibrarySavedRoute
   '/library/search': typeof LibrarySearchRoute
   '/library/sources': typeof LibrarySourcesRoute
+  '/first-aid/': typeof FirstAidIndexRoute
   '/library/': typeof LibraryIndexRoute
   '/api/features/$id': typeof ApiFeaturesIdRoute
   '/api/map/waypoints.gpx': typeof ApiMapWaypointsDotgpxRoute
@@ -191,16 +205,17 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/emergency': typeof EmergencyRoute
-  '/first-aid': typeof FirstAidRoute
   '/internet': typeof InternetRoute
   '/map': typeof MapRoute
   '/messages': typeof MessagesRoute
   '/power': typeof PowerRoute
   '/settings': typeof SettingsRoute
   '/api/healthz': typeof ApiHealthzRoute
+  '/first-aid/$topic': typeof FirstAidTopicRoute
   '/library/saved': typeof LibrarySavedRoute
   '/library/search': typeof LibrarySearchRoute
   '/library/sources': typeof LibrarySourcesRoute
+  '/first-aid': typeof FirstAidIndexRoute
   '/library': typeof LibraryIndexRoute
   '/api/features/$id': typeof ApiFeaturesIdRoute
   '/api/map/waypoints.gpx': typeof ApiMapWaypointsDotgpxRoute
@@ -218,7 +233,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/emergency': typeof EmergencyRoute
-  '/first-aid': typeof FirstAidRoute
+  '/first-aid': typeof FirstAidRouteWithChildren
   '/internet': typeof InternetRoute
   '/library': typeof LibraryRouteWithChildren
   '/map': typeof MapRoute
@@ -226,9 +241,11 @@ export interface FileRoutesById {
   '/power': typeof PowerRoute
   '/settings': typeof SettingsRoute
   '/api/healthz': typeof ApiHealthzRoute
+  '/first-aid/$topic': typeof FirstAidTopicRoute
   '/library/saved': typeof LibrarySavedRoute
   '/library/search': typeof LibrarySearchRoute
   '/library/sources': typeof LibrarySourcesRoute
+  '/first-aid/': typeof FirstAidIndexRoute
   '/library/': typeof LibraryIndexRoute
   '/api/features/$id': typeof ApiFeaturesIdRoute
   '/api/map/waypoints.gpx': typeof ApiMapWaypointsDotgpxRoute
@@ -255,9 +272,11 @@ export interface FileRouteTypes {
     | '/power'
     | '/settings'
     | '/api/healthz'
+    | '/first-aid/$topic'
     | '/library/saved'
     | '/library/search'
     | '/library/sources'
+    | '/first-aid/'
     | '/library/'
     | '/api/features/$id'
     | '/api/map/waypoints.gpx'
@@ -274,16 +293,17 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/emergency'
-    | '/first-aid'
     | '/internet'
     | '/map'
     | '/messages'
     | '/power'
     | '/settings'
     | '/api/healthz'
+    | '/first-aid/$topic'
     | '/library/saved'
     | '/library/search'
     | '/library/sources'
+    | '/first-aid'
     | '/library'
     | '/api/features/$id'
     | '/api/map/waypoints.gpx'
@@ -308,9 +328,11 @@ export interface FileRouteTypes {
     | '/power'
     | '/settings'
     | '/api/healthz'
+    | '/first-aid/$topic'
     | '/library/saved'
     | '/library/search'
     | '/library/sources'
+    | '/first-aid/'
     | '/library/'
     | '/api/features/$id'
     | '/api/map/waypoints.gpx'
@@ -328,7 +350,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EmergencyRoute: typeof EmergencyRoute
-  FirstAidRoute: typeof FirstAidRoute
+  FirstAidRoute: typeof FirstAidRouteWithChildren
   InternetRoute: typeof InternetRoute
   LibraryRoute: typeof LibraryRouteWithChildren
   MapRoute: typeof MapRoute
@@ -419,6 +441,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/healthz'
       preLoaderRoute: typeof ApiHealthzRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/first-aid/': {
+      id: '/first-aid/'
+      path: '/'
+      fullPath: '/first-aid/'
+      preLoaderRoute: typeof FirstAidIndexRouteImport
+      parentRoute: typeof FirstAidRoute
+    }
+    '/first-aid/$topic': {
+      id: '/first-aid/$topic'
+      path: '/$topic'
+      fullPath: '/first-aid/$topic'
+      preLoaderRoute: typeof FirstAidTopicRouteImport
+      parentRoute: typeof FirstAidRoute
     }
     '/library/': {
       id: '/library/'
@@ -528,6 +564,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface FirstAidRouteChildren {
+  FirstAidTopicRoute: typeof FirstAidTopicRoute
+  FirstAidIndexRoute: typeof FirstAidIndexRoute
+}
+
+const FirstAidRouteChildren: FirstAidRouteChildren = {
+  FirstAidTopicRoute: FirstAidTopicRoute,
+  FirstAidIndexRoute: FirstAidIndexRoute,
+}
+
+const FirstAidRouteWithChildren = FirstAidRoute._addFileChildren(
+  FirstAidRouteChildren,
+)
+
 interface LibraryRouteChildren {
   LibrarySavedRoute: typeof LibrarySavedRoute
   LibrarySearchRoute: typeof LibrarySearchRoute
@@ -550,7 +600,7 @@ const LibraryRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EmergencyRoute: EmergencyRoute,
-  FirstAidRoute: FirstAidRoute,
+  FirstAidRoute: FirstAidRouteWithChildren,
   InternetRoute: InternetRoute,
   LibraryRoute: LibraryRouteWithChildren,
   MapRoute: MapRoute,

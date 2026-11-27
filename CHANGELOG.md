@@ -8,6 +8,14 @@ CalVer (`YYYY.M.D`).
 
 ### Added
 
+- First aid: emergency numbers on every page, short steps for 22 emergencies
+  grouped and searchable by everyday words, each with when to call 000, what
+  not to do, the full ANZCOR guideline and WikiMed. One button saves all the
+  first aid guidelines and flowcharts.
+- A CPR coach: a full-screen 110-a-minute beat that counts 30 compressions and
+  2 breaths (or compressions only), with an optional click, a timer and rounds,
+  and the screen kept awake.
+- The First aid card on the Overview shows whether the guides are saved.
 - Cooking on the Sources screen: Public Domain Recipes, Based Cooking, FOSS
   Cooking, GrimGrains, Seasoned Advice (cooking Q&A), the USDA home canning
   guide and Food for Preppers, with one button to download them all (about

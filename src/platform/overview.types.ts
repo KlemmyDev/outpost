@@ -3,6 +3,7 @@ import type { LibraryStatus } from '#/features/library/types'
 import type { MapStatus } from '#/features/map/types'
 import type { MessagesStatus } from '#/features/messages/types'
 import type { PowerStatus } from '#/features/power/types'
+import type { FirstAidStatus } from '#/features/first-aid/types'
 
 /** Shared between the server and the Overview UI. No Node imports. */
 
@@ -18,6 +19,7 @@ export interface WidgetData {
   map?: MapStatus | null
   messages?: MessagesStatus | null
   power?: PowerStatus | null
+  'first-aid'?: FirstAidStatus | null
 }
 
 export interface ServerStats {

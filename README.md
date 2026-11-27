@@ -133,6 +133,23 @@ introductions only.
   and night themes, five text sizes, saved pages and history. **Original
   layout** opens the page as the book made it, sandboxed.
 
+## First aid
+
+**First aid** puts 000, Poisons Information (13 11 26) and healthdirect at the
+top of every page, tappable on phones, then short steps for 22 emergencies:
+CPR, choking, asthma (4×4×4), anaphylaxis, heart attack, stroke (FAST),
+bleeding, burns, head injuries and fractures, snake, spider and marine stings,
+seizures, low blood sugar, poisoning, shock, heat, cold and drowning. Each
+says when to call 000 and what not to do, and links to the full ANZCOR
+guideline (one button saves them all from ANZCOR's site) and to WikiMed.
+
+**Not breathing? Start CPR** opens a full-screen beat at 110 a minute: it
+counts 30 compressions, then 2 breaths (or keeps going, for compressions
+only), clicks along if you like, and keeps the screen on.
+
+The steps are written for Outpost from the ANZCOR guidelines, the National
+Asthma Council and ASCIA. They're a reminder, not training.
+
 ## Map
 
 **Map** draws the offline map with MapLibre in Outpost's own style, light or

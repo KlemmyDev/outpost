@@ -3,26 +3,46 @@ import { SummaryCard } from '#/platform/ui/SummaryCard'
 import type { OverviewWidget } from '#/platform/features/widget'
 
 export const widget: OverviewWidget = {
-  Card: ({ feature, onOpen }) => (
-    <SummaryCard
-      label={feature.name}
-      icon={feature.icon}
-      tone="flare"
-      value="Call 000 first"
-      caption="Then the guides, once the first aid source is downloaded."
-      onOpen={onOpen}
-    />
-  ),
-  Detail: () => (
-    <>
-      <div className="notice bad">In a life-threatening emergency, call 000 before anything else.</div>
-      <p style={{ margin: 0, lineHeight: 1.55 }}>
-        First aid will show the Australian Resuscitation Council guidelines and WikiMed, word for word and dated, so you know how
-        current they are. They arrive with the Sources screen in the library.
-      </p>
-      <Link to="/first-aid" className="btn secondary" style={{ alignSelf: 'flex-start', display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}>
-        Open First aid
-      </Link>
-    </>
-  ),
+  Card: ({ feature, data, onOpen }) => {
+    const s = data['first-aid']
+    return (
+      <SummaryCard
+        label={feature.name}
+        icon={feature.icon}
+        tone="flare"
+        value="Call 000 first"
+        caption={
+          !s
+            ? 'Then the steps: CPR, bleeding, burns, bites and more.'
+            : s.guidesSaved < s.guidesTotal
+              ? `Steps for 22 emergencies. Save the full ANZCOR guides (${s.guidesSaved} of ${s.guidesTotal}) while you have internet.`
+              : `Steps for 22 emergencies, with the full ANZCOR guides${s.wikimed ? ' and WikiMed' : ''} saved.`
+        }
+        footer="CPR beat · snake bite · burns · asthma"
+        onOpen={onOpen}
+      />
+    )
+  },
+  Detail: ({ data }) => {
+    const s = data['first-aid']
+    return (
+      <>
+        <a className="notice bad" href="tel:000" style={{ fontSize: 15, textDecoration: 'none' }}>
+          In a life-threatening emergency, call <strong>000</strong> first. Tap to call.
+        </a>
+        <p style={{ margin: 0, lineHeight: 1.55 }}>
+          Short steps for 22 emergencies, a CPR beat to follow, and the full Australian Resuscitation Council guidelines
+          {s && s.guidesSaved < s.guidesTotal ? ' once they’re saved' : ''}.
+        </p>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <Link to="/first-aid" className="btn accent">
+            Open First aid
+          </Link>
+          <Link to="/first-aid/$topic" params={{ topic: 'cpr' }} className="btn secondary">
+            CPR
+          </Link>
+        </div>
+      </>
+    )
+  },
 }
