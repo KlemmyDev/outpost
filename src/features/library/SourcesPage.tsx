@@ -5,7 +5,9 @@ import { count, monthYear } from './format'
 import { browseCatalog, checkBookUpdates, controlDownload, getDownloads, getRecommended, removeBook, startDownload } from './library.functions'
 import { BookIcon } from './ui/BookIcon'
 import { DownloadBar } from './ui/DownloadBar'
-import { flavourLabel, type Book, type CatalogEntry, type CatalogPage, type Download, type Recommendation, type SourcesData, type StorageInfo } from './types'
+import { GuidesSection } from './ui/GuidesSection'
+import { GUIDES_BOOK } from './guides/catalog'
+import { flavourLabel, isAppBook, type Book, type CatalogEntry, type CatalogPage, type Download, type Recommendation, type SourcesData, type StorageInfo } from './types'
 
 /** Matches SPACE_MARGIN on the server: what's kept free after a download. */
 const MARGIN = 2 * 1024 ** 3
@@ -46,7 +48,9 @@ const ACTIVE = new Set<Download['state']>(['queued', 'downloading', 'verifying']
 export function SourcesPage({ initial }: { initial: SourcesData }) {
   const router = useRouter()
   const [downloads, setDownloads] = useState(initial.downloads)
-  const [books, setBooks] = useState(initial.books)
+  // The Australian guides have their own section below.
+  const [allBooks, setBooks] = useState(initial.books)
+  const books = allBooks.filter((b) => b.contentId !== GUIDES_BOOK)
   const [storage, setStorage] = useState(initial.storage)
   const [updates, setUpdates] = useState<Record<string, CatalogEntry>>({})
   const [error, setError] = useState<string | null>(null)
@@ -173,6 +177,7 @@ export function SourcesPage({ initial }: { initial: SourcesData }) {
         )}
       </section>
 
+      <GuidesSection />
       <Recommended ctx={ctx} />
       <Browse ctx={ctx} />
     </main>
@@ -232,7 +237,8 @@ function InstalledRow({ book, update, updating, onUpdate, onRemove }: { book: Bo
         <span style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
           <strong>{book.title}</strong>
           <span className="muted" style={{ fontSize: 13 }}>
-            {flavourLabel(book.flavour)} · {monthYear(book.date)} · {count(book.articleCount)} articles{book.sizeBytes ? ` · ${formatBytes(book.sizeBytes)}` : ''}
+            {isAppBook(book) ? 'Map' : flavourLabel(book.flavour)} · {monthYear(book.date)}
+            {isAppBook(book) ? '' : ` · ${count(book.articleCount)} articles`}{book.sizeBytes ? ` · ${formatBytes(book.sizeBytes)}` : ''}
           </span>
         </span>
       </span>
@@ -294,11 +300,30 @@ function Recommended({ ctx }: { ctx: EntryCtx }) {
       ) : 'error' in state ? (
         <div className="notice warn">{state.error}</div>
       ) : (
-        <div className="rec-grid">
-          {state.list.map((r) => (
-            <RecCard key={r.name} rec={r} ctx={ctx} />
-          ))}
-        </div>
+        <>
+          <div className="rec-grid">
+            {state.list
+              .filter((r) => r.group === 'essentials')
+              .map((r) => (
+                <RecCard key={r.name} rec={r} ctx={ctx} />
+              ))}
+          </div>
+          {state.list.some((r) => r.group === 'prepare') && (
+            <>
+              <div className="section-head" style={{ marginTop: 18 }}>
+                <h2 id="prep-title">Be prepared</h2>
+                <span className="mono">MAPS, WATER, FOOD AND AFTER A DISASTER</span>
+              </div>
+              <div className="rec-grid">
+                {state.list
+                  .filter((r) => r.group === 'prepare')
+                  .map((r) => (
+                    <RecCard key={r.name} rec={r} ctx={ctx} />
+                  ))}
+              </div>
+            </>
+          )}
+        </>
       )}
     </section>
   )

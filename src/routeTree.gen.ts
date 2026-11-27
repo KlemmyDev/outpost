@@ -29,6 +29,7 @@ import { Route as ApiUpdatesIndexRouteImport } from './routes/api/updates/index'
 import { Route as ApiUpdatesChannelRouteImport } from './routes/api/updates/channel'
 import { Route as ApiUpdatesCheckRouteImport } from './routes/api/updates/check'
 import { Route as ApiUpdatesInstallRouteImport } from './routes/api/updates/install'
+import { Route as ApiLibraryGuidesSplatRouteImport } from './routes/api/library/guides.$'
 import { Route as ApiLibraryIconUuidRouteImport } from './routes/api/library/icon.$uuid'
 import { Route as LibraryReadBookSplatRouteImport } from './routes/library/read.$book.$'
 import { Route as ApiLibraryRawBookSplatRouteImport } from './routes/api/library/raw.$book.$'
@@ -133,6 +134,11 @@ const ApiUpdatesInstallRoute = ApiUpdatesInstallRouteImport.update({
   path: '/api/updates/install',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiLibraryGuidesSplatRoute = ApiLibraryGuidesSplatRouteImport.update({
+  id: '/api/library/guides/$',
+  path: '/api/library/guides/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiLibraryIconUuidRoute = ApiLibraryIconUuidRouteImport.update({
   id: '/api/library/icon/$uuid',
   path: '/api/library/icon/$uuid',
@@ -170,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/api/updates/install': typeof ApiUpdatesInstallRoute
   '/api/features/': typeof ApiFeaturesIndexRoute
   '/api/updates/': typeof ApiUpdatesIndexRoute
+  '/api/library/guides/$': typeof ApiLibraryGuidesSplatRoute
   '/api/library/icon/$uuid': typeof ApiLibraryIconUuidRoute
   '/library/read/$book/$': typeof LibraryReadBookSplatRoute
   '/api/library/raw/$book/$': typeof ApiLibraryRawBookSplatRoute
@@ -194,6 +201,7 @@ export interface FileRoutesByTo {
   '/api/updates/install': typeof ApiUpdatesInstallRoute
   '/api/features': typeof ApiFeaturesIndexRoute
   '/api/updates': typeof ApiUpdatesIndexRoute
+  '/api/library/guides/$': typeof ApiLibraryGuidesSplatRoute
   '/api/library/icon/$uuid': typeof ApiLibraryIconUuidRoute
   '/library/read/$book/$': typeof LibraryReadBookSplatRoute
   '/api/library/raw/$book/$': typeof ApiLibraryRawBookSplatRoute
@@ -220,6 +228,7 @@ export interface FileRoutesById {
   '/api/updates/install': typeof ApiUpdatesInstallRoute
   '/api/features/': typeof ApiFeaturesIndexRoute
   '/api/updates/': typeof ApiUpdatesIndexRoute
+  '/api/library/guides/$': typeof ApiLibraryGuidesSplatRoute
   '/api/library/icon/$uuid': typeof ApiLibraryIconUuidRoute
   '/library/read/$book/$': typeof LibraryReadBookSplatRoute
   '/api/library/raw/$book/$': typeof ApiLibraryRawBookSplatRoute
@@ -247,6 +256,7 @@ export interface FileRouteTypes {
     | '/api/updates/install'
     | '/api/features/'
     | '/api/updates/'
+    | '/api/library/guides/$'
     | '/api/library/icon/$uuid'
     | '/library/read/$book/$'
     | '/api/library/raw/$book/$'
@@ -271,6 +281,7 @@ export interface FileRouteTypes {
     | '/api/updates/install'
     | '/api/features'
     | '/api/updates'
+    | '/api/library/guides/$'
     | '/api/library/icon/$uuid'
     | '/library/read/$book/$'
     | '/api/library/raw/$book/$'
@@ -296,6 +307,7 @@ export interface FileRouteTypes {
     | '/api/updates/install'
     | '/api/features/'
     | '/api/updates/'
+    | '/api/library/guides/$'
     | '/api/library/icon/$uuid'
     | '/library/read/$book/$'
     | '/api/library/raw/$book/$'
@@ -318,6 +330,7 @@ export interface RootRouteChildren {
   ApiUpdatesInstallRoute: typeof ApiUpdatesInstallRoute
   ApiFeaturesIndexRoute: typeof ApiFeaturesIndexRoute
   ApiUpdatesIndexRoute: typeof ApiUpdatesIndexRoute
+  ApiLibraryGuidesSplatRoute: typeof ApiLibraryGuidesSplatRoute
   ApiLibraryIconUuidRoute: typeof ApiLibraryIconUuidRoute
   ApiLibraryRawBookSplatRoute: typeof ApiLibraryRawBookSplatRoute
 }
@@ -464,6 +477,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiUpdatesInstallRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/library/guides/$': {
+      id: '/api/library/guides/$'
+      path: '/api/library/guides/$'
+      fullPath: '/api/library/guides/$'
+      preLoaderRoute: typeof ApiLibraryGuidesSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/library/icon/$uuid': {
       id: '/api/library/icon/$uuid'
       path: '/api/library/icon/$uuid'
@@ -524,6 +544,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiUpdatesInstallRoute: ApiUpdatesInstallRoute,
   ApiFeaturesIndexRoute: ApiFeaturesIndexRoute,
   ApiUpdatesIndexRoute: ApiUpdatesIndexRoute,
+  ApiLibraryGuidesSplatRoute: ApiLibraryGuidesSplatRoute,
   ApiLibraryIconUuidRoute: ApiLibraryIconUuidRoute,
   ApiLibraryRawBookSplatRoute: ApiLibraryRawBookSplatRoute,
 }

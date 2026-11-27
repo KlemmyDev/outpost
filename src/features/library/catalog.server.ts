@@ -1,5 +1,5 @@
 import { parseRemoteCatalog } from './opds'
-import type { CatalogEntry, CatalogPage, Recommendation } from './types'
+import type { CatalogEntry, CatalogPage, Recommendation, RecommendationGroup } from './types'
 
 const CATALOG = 'https://library.kiwix.org'
 const CACHE_MS = 6 * 60 * 60 * 1000
@@ -9,13 +9,18 @@ const CACHE_MS = 6 * 60 * 60 * 1000
  * and in English. Each offers the versions Kiwix makes (with pictures, text
  * only, introductions only) so a smaller disk can still hold something.
  */
-export const RECOMMENDED: { name: string; title: string; why: string }[] = [
-  { name: 'wikipedia_en_all', title: 'Wikipedia', why: 'The whole English encyclopedia. With pictures needs about half of a 250 GB disk.' },
-  { name: 'mdwiki_en_all', title: 'WikiMed', why: 'Medical encyclopedia: conditions, medicines, anatomy and procedures.' },
-  { name: 'wikivoyage_en_all', title: 'Wikivoyage', why: 'Travel guides with maps, transport and safety notes for places worldwide.' },
-  { name: 'wikibooks_en_all', title: 'Wikibooks', why: 'Open textbooks, including the Cookbook with thousands of recipes.' },
-  { name: 'ifixit_en_all', title: 'iFixit', why: 'Step-by-step repair guides for phones, cars, appliances and tools.' },
-  { name: 'wiktionary_en_all', title: 'Wiktionary', why: 'Dictionary and thesaurus, with pronunciations and word origins.' },
+export const RECOMMENDED: { name: string; title: string; why: string; group: RecommendationGroup }[] = [
+  { group: 'essentials', name: 'wikipedia_en_all', title: 'Wikipedia', why: 'The whole English encyclopedia. With pictures needs about half of a 250 GB disk.' },
+  { group: 'essentials', name: 'mdwiki_en_all', title: 'WikiMed', why: 'Medical encyclopedia: conditions, medicines, anatomy and procedures.' },
+  { group: 'essentials', name: 'wikivoyage_en_all', title: 'Wikivoyage', why: 'Travel guides with maps, transport and safety notes for places worldwide.' },
+  { group: 'essentials', name: 'wikibooks_en_all', title: 'Wikibooks', why: 'Open textbooks, including the Cookbook with thousands of recipes.' },
+  { group: 'essentials', name: 'ifixit_en_all', title: 'iFixit', why: 'Step-by-step repair guides for phones, cars, appliances and tools.' },
+  { group: 'essentials', name: 'wiktionary_en_all', title: 'Wiktionary', why: 'Dictionary and thesaurus, with pronunciations and word origins.' },
+  { group: 'prepare', name: 'maps_en_australia', title: 'Map of Australia', why: 'Roads, towns and landmarks for the whole country, with search. Opens as its own map viewer.' },
+  { group: 'prepare', name: 'zimgit-post-disaster_en', title: 'Post-disaster library', why: 'Guides for after a disaster: shelter, sanitation, health and rebuilding.' },
+  { group: 'prepare', name: 'zimgit-water_en', title: 'Water treatment', why: 'Collecting, storing and purifying drinking water.' },
+  { group: 'prepare', name: 'zimgit-food-preparation_en', title: 'Food for preppers', why: 'Preserving, storing and cooking food without the usual kitchen.' },
+  { group: 'prepare', name: 'medlineplus.gov_en_all', title: 'MedlinePlus', why: 'Plain-English health encyclopedia from the US National Library of Medicine. US-centred, but thorough.' },
 ]
 
 /** Flavours in the order they're offered: biggest and best first. */

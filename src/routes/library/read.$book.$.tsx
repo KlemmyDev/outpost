@@ -1,5 +1,6 @@
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { getArticle } from '#/features/library/library.functions'
+import { FileView } from '#/features/library/FileView'
 import { Reader } from '#/features/library/Reader'
 
 /** /library/read/<book>/<path>: a page in a book. No path is the book's main page. */
@@ -13,6 +14,7 @@ export const Route = createFileRoute('/library/read/$book/$')({
   component: function ReadRoute() {
     const result = Route.useLoaderData()
     if (result.kind === 'article') return <Reader key={`${result.contentId}/${result.path}`} article={result} />
+    if (result.kind === 'file' && result.title) return <FileView file={result} />
     return (
       <main className="page lib-page">
         <section className="card" style={{ maxWidth: 640 }}>

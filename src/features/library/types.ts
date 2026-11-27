@@ -49,7 +49,10 @@ export interface CatalogPage {
 }
 
 /** A curated pick on the Sources screen, with each version Kiwix offers. */
+export type RecommendationGroup = 'essentials' | 'prepare'
+
 export interface Recommendation {
+  group: RecommendationGroup
   name: string
   title: string
   why: string
@@ -116,12 +119,19 @@ export interface TocItem {
   level: 2 | 3
 }
 
+/** Where a page came from, for guides saved from a publisher's site. */
+export interface PageSource {
+  publisher: string
+  url: string
+  fetchedAt: number
+}
+
 export type ArticleResult =
-  | { kind: 'article'; contentId: string; bookTitle: string; path: string; title: string; html: string; toc: TocItem[]; saved: boolean; words: number }
+  | { kind: 'article'; contentId: string; bookTitle: string; path: string; title: string; html: string; toc: TocItem[]; saved: boolean; words: number; source?: PageSource }
   /** The path moved; open this one instead. */
   | { kind: 'redirect'; path: string }
   /** Not a page (a PDF, an image): open it directly. */
-  | { kind: 'file'; url: string }
+  | { kind: 'file'; url: string; title?: string; bookTitle?: string; pdf?: boolean; source?: PageSource }
   | { kind: 'missing'; contentId: string; path: string; reason: string }
 
 export interface Bookmark {
@@ -189,4 +199,9 @@ export const FLAVOUR_WORDS: Record<string, string> = {
 
 export function flavourLabel(flavour: string): string {
   return FLAVOUR_WORDS[flavour] ?? flavour.replace(/[_-]/g, ' ')
+}
+
+/** Books that are apps of their own (offline maps), opened in their original layout rather than the reader. */
+export function isAppBook(book: Pick<Book, 'name'>): boolean {
+  return book.name.startsWith('maps_')
 }

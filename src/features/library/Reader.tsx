@@ -4,6 +4,7 @@ import { Sheet } from '#/platform/ui/Sheet'
 import { readHref, readingTime } from './format'
 import { encodePathForUrl } from './paths'
 import { randomArticle, setBookmark } from './library.functions'
+import { GUIDES_BOOK } from './guides/catalog'
 import type { ArticleResult, TocItem } from './types'
 
 type Article = Extract<ArticleResult, { kind: 'article' }>
@@ -197,9 +198,20 @@ export function Reader({ article }: { article: Article }) {
             <h1>{article.title}</h1>
             <span className="muted reader-meta">
               {readingTime(article.words)} ·{' '}
-              <a href={original} target="_blank" rel="noopener">
-                Original layout
-              </a>
+              {article.source ? (
+                <>
+                  From {article.source.publisher}, saved {new Date(article.source.fetchedAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })} ·{' '}
+                  <a href={article.source.url} target="_blank" rel="noopener noreferrer">
+                    Original
+                  </a>
+                </>
+              ) : article.path === '' && article.contentId === GUIDES_BOOK ? (
+                'Saved for use offline'
+              ) : (
+                <a href={original} target="_blank" rel="noopener">
+                  Original layout
+                </a>
+              )}
             </span>
           </header>
           {/* Cleaned on the server (article.server.ts): no scripts, styles or event handlers survive. */}

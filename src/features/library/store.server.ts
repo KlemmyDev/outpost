@@ -36,6 +36,18 @@ export const MIGRATIONS: Migration[] = [
      PRIMARY KEY (content_id, path)
    );
    CREATE INDEX library_history_visited ON library_history (visited_at)`,
+  `CREATE TABLE library_guides (
+     id            TEXT PRIMARY KEY,
+     source_url    TEXT NOT NULL,
+     bytes         INTEGER NOT NULL,
+     sha256        TEXT NOT NULL,
+     etag          TEXT,
+     last_modified TEXT,
+     page_title    TEXT,
+     text          TEXT NOT NULL DEFAULT '',
+     fetched_at    INTEGER NOT NULL,
+     checked_at    INTEGER NOT NULL
+   )`,
 ]
 
 /** History keeps this many pages, newest first. */

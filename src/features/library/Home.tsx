@@ -7,7 +7,8 @@ import { BookIcon } from './ui/BookIcon'
 import { DownloadBar } from './ui/DownloadBar'
 import { ReadLink } from './ui/ReadLink'
 import { SearchBox } from './ui/SearchBox'
-import { flavourLabel, type Book, type LibraryHome } from './types'
+import { GUIDES_BOOK } from './guides/catalog'
+import { flavourLabel, isAppBook, type Book, type LibraryHome } from './types'
 
 export function LibraryHomePage({ data }: { data: LibraryHome }) {
   const { books, history, saved, downloads, online } = data
@@ -159,14 +160,17 @@ function BookCard({ book }: { book: Book }) {
       </ReadLink>
       <div className="lib-book-foot">
         <span className="mono">
-          {flavourLabel(book.flavour).toUpperCase()} · {monthYear(book.date).toUpperCase()}
+          {(book.contentId === GUIDES_BOOK ? 'Saved' : isAppBook(book) ? 'Map' : flavourLabel(book.flavour)).toUpperCase()} · {monthYear(book.date).toUpperCase()}
         </span>
         <span className="muted">
-          {count(book.articleCount)} articles{book.sizeBytes ? ` · ${formatBytes(book.sizeBytes)}` : ''}
+          {book.contentId === GUIDES_BOOK ? `${book.articleCount} guides` : isAppBook(book) ? 'Opens in its own viewer' : `${count(book.articleCount)} articles`}
+          {book.sizeBytes ? ` · ${formatBytes(book.sizeBytes)}` : ''}
         </span>
-        <button type="button" className="link-btn" onClick={surprise} disabled={busy}>
-          {busy ? 'Finding one…' : 'Random article'}
-        </button>
+        {!isAppBook(book) && (
+          <button type="button" className="link-btn" onClick={surprise} disabled={busy}>
+            {busy ? 'Finding one…' : book.contentId === GUIDES_BOOK ? 'Random guide' : 'Random article'}
+          </button>
+        )}
       </div>
     </article>
   )

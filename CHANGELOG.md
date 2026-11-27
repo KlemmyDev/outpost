@@ -8,6 +8,18 @@ CalVer (`YYYY.M.D`).
 
 ### Added
 
+- Australian guides in the Library: 42 official documents (ANZCOR first aid
+  guidelines and flowcharts, Red Cross RediPlan, NSW RFS and CFA bushfire
+  plans, Get Ready Queensland cards, the Australian Dietary Guidelines and
+  more), each downloaded straight from its publisher. PDFs open in the
+  browser's viewer inside the Library; web pages are saved with their pictures
+  and read in the reader with contents and a link to the source. They're
+  searchable, can be saved and appear in history, and are rechecked monthly
+  with conditional requests. If a PDF moves, Outpost finds its new address on
+  the publisher's page.
+- "Be prepared" recommendations: the map of Australia, water treatment, food
+  preparation, a post-disaster library and MedlinePlus. Map books open in their
+  own viewer inside the Library.
 - Library: offline Wikipedia, WikiMed, Wikivoyage, Wikibooks, iFixit,
   Wiktionary and the rest of Kiwix's catalogue, read through a kiwix-serve
   sidecar container that Outpost keeps in step with `data/library`.
@@ -88,3 +100,9 @@ CalVer (`YYYY.M.D`).
   API with cross-site protection.
 - CI: typecheck, tests, build, ShellCheck, and Docker builds for amd64 and
   arm64. Daily CalVer on main, and `scripts/release.sh` for beta and stable tags.
+
+### Fixed
+
+- Files Kiwix sends compressed (scripts, pages) were cut short by the Library's
+  proxy, breaking "Original layout" pages and offline maps. Proxied files now
+  revalidate with Kiwix instead of being cached for a day.

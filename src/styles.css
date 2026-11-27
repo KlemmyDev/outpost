@@ -2393,3 +2393,142 @@ a.row.lib-row-link:hover {
     transition: none;
   }
 }
+
+/* PDFs and app-like books (offline maps) inside the Library */
+
+.file-view {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 64px);
+}
+
+.file-bar {
+  width: 100%;
+}
+
+.file-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 64px 16px;
+  color: var(--stone);
+}
+
+.file-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 16px;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 12px 32px 16px;
+}
+
+.file-head h1 {
+  font-size: clamp(26px, 3.5vw, 36px);
+}
+
+.file-head .muted {
+  font-size: 14px;
+}
+
+.file-frame {
+  flex: 1;
+  width: 100%;
+  min-height: 70vh;
+  border: 0;
+  border-top: 1px solid var(--line);
+  background: var(--paper);
+}
+
+@media (max-width: 640px) {
+  .file-head {
+    padding: 10px 16px 12px;
+  }
+}
+
+/* The guides' contents page */
+
+.article-body .guide-list {
+  list-style: none;
+  padding: 0;
+}
+
+.article-body .guide-list li {
+  margin: 0 0 14px;
+  font-family: var(--font-ui);
+  font-size: 0.85em;
+  line-height: 1.5;
+  color: var(--r-soft);
+}
+
+.article-body .guide-list a {
+  font-family: var(--font-display);
+  font-size: 1.2em;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.article-body .guide-meta {
+  margin-left: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  letter-spacing: 0.04em;
+}
+
+.article-body a.oz-pdf::after {
+  content: 'PDF';
+  margin-left: 6px;
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: var(--r-panel);
+  font-family: var(--font-mono);
+  font-size: 0.55em;
+  vertical-align: 3px;
+}
+
+.guide-topics {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.guide-topic {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.guide-topic-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--paper);
+  color: var(--ironbark);
+  font: 15px var(--font-ui);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.guide-topic-head:hover {
+  background: var(--saltbush);
+}
+
+.guide-topic-head .muted {
+  font-size: 13px;
+}
+
+.guide-topic-head .chevron {
+  margin-left: auto;
+  font-size: 18px;
+}
+
+.guide-topic .rows {
+  animation: suggest-in 0.16s ease-out;
+}

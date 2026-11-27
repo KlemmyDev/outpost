@@ -4,6 +4,7 @@ import { getPlatform } from '#/platform/server/platform.server'
 import type { FeatureServer } from '#/platform/server/runtime.server'
 import { Catalog } from './catalog.server'
 import { DownloadManager } from './downloads.server'
+import { GuideManager } from './guides/guides.server'
 import { KiwixClient } from './kiwix.server'
 import { LibraryStore, MIGRATIONS } from './store.server'
 import type { Book, LibraryStatus } from './types'
@@ -23,10 +24,21 @@ export class Library {
     readonly kiwix: KiwixClient,
     readonly store: LibraryStore,
     readonly downloads: DownloadManager,
+    readonly guides: GuideManager,
   ) {}
 
-  /** Installed books, alphabetical. Cached for a few seconds, since every page asks. */
+  /** Kiwix's books plus the Australian guides, alphabetical. */
+  private withGuides(books: Book[]): Book[] {
+    const g = this.guides.book()
+    return g ? [...books, g].sort((a, b) => a.title.localeCompare(b.title) || a.contentId.localeCompare(b.contentId)) : books
+  }
+
+  /** Installed books, alphabetical, with the guides as one more. Kiwix's list is cached for a few seconds. */
   async books(): Promise<Book[]> {
+    return this.withGuides(await this.kiwixBooks())
+  }
+
+  private async kiwixBooks(): Promise<Book[]> {
     if (this.bookCache && Date.now() - this.bookCache.at < 5000) return this.bookCache.books
     const list = await this.kiwix.books()
     const books = await Promise.all(list.map(async (b) => ({ ...b, sizeBytes: await this.downloads.fileSize(b.contentId) })))
@@ -58,7 +70,8 @@ export class Library {
     try {
       return { online: true, books: await this.books() }
     } catch {
-      return { online: false, books: [] }
+      // The guides don't need Kiwix.
+      return { online: false, books: this.withGuides([]) }
     }
   }
 
@@ -96,11 +109,14 @@ export const server: FeatureServer = {
     const dir = join(loadConfig().dataDir, 'library')
     const store = new LibraryStore(ctx.db)
     const downloads = new DownloadManager(store, dir, ctx)
-    library = new Library(new KiwixClient(process.env.KIWIX_URL || 'http://kiwix:8080'), store, downloads)
+    const guides = new GuideManager(ctx.db, join(dir, 'guides'), ctx)
+    library = new Library(new KiwixClient(process.env.KIWIX_URL || 'http://kiwix:8080'), store, downloads, guides)
     await downloads.start()
+    await guides.start()
   },
   stop() {
     library?.downloads.stop()
+    library?.guides.stop()
     library = null
   },
 }

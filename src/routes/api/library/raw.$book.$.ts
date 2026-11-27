@@ -3,6 +3,7 @@ import { problem } from '#/platform/server/http.server'
 import { getPlatform } from '#/platform/server/platform.server'
 import { safeContentId } from '#/features/library/downloads.server'
 import { getLibraryReady } from '#/features/library/server'
+import { isAppBook } from '#/features/library/types'
 
 /** Headers passed on from Kiwix. */
 const PASS = ['content-type', 'content-length', 'last-modified', 'etag', 'accept-ranges', 'content-range']
@@ -28,26 +29,43 @@ export const Route = createFileRoute('/api/library/raw/$book/$')({
         const { pathname } = new URL(request.url)
         const rest = pathname.startsWith(prefix) ? pathname.slice(prefix.length) : ''
         if (!rest || rest.split('/').some((s) => s === '..' || s === '.')) return problem('No such file.', 404)
-        const range = request.headers.get('range')
+        // Pass on ranges (video, big files) and revalidation, so a cached copy costs a 304.
+        const forward: Record<string, string> = {}
+        for (const h of ['range', 'if-none-match', 'if-modified-since']) {
+          const v = request.headers.get(h)
+          if (v) forward[h] = v
+        }
         let res: Response
         try {
-          res = await library.kiwix.raw(params.book, rest, { headers: range ? { Range: range } : {}, signal: request.signal })
+          res = await library.kiwix.raw(params.book, rest, { headers: forward, signal: request.signal })
         } catch {
           return problem("The library server isn't answering.", 503)
         }
+        if (res.status === 304) return new Response(null, { status: 304, headers: { etag: res.headers.get('etag') ?? '', 'Cache-Control': 'no-cache' } })
         if (!res.ok) {
           await res.body?.cancel()
           return problem('No such file.', res.status === 404 ? 404 : 502)
         }
         const headers = new Headers()
+        // fetch() has already unzipped a compressed body, so its length no longer applies.
+        const unzipped = res.headers.has('content-encoding')
         for (const h of PASS) {
+          if (unzipped && (h === 'content-length' || h === 'content-range' || h === 'accept-ranges')) continue
           const v = res.headers.get(h)
           if (v) headers.set(h, v)
         }
-        headers.set('Cache-Control', 'private, max-age=86400')
+        // Always revalidate: cheap, and it means header changes reach browsers at once.
+        headers.set('Cache-Control', 'private, no-cache')
         headers.set('X-Content-Type-Options', 'nosniff')
-        headers.set('Content-Security-Policy', "sandbox allow-scripts allow-popups allow-popups-to-escape-sandbox; frame-ancestors 'self'")
+        // Offline maps (openZIM's Maps2ZIM, from Kiwix's catalogue) need browser
+        // storage, which a fully sandboxed page doesn't get, so they keep their
+        // origin. Everything else from a ZIM runs in a unique one.
+        const sandbox = isAppBook({ name: params.book }) ? 'sandbox allow-scripts allow-same-origin allow-popups' : 'sandbox allow-scripts allow-popups allow-popups-to-escape-sandbox'
+        headers.set('Content-Security-Policy', `${sandbox}; frame-ancestors 'self'`)
         headers.set('Referrer-Policy', 'no-referrer')
+        // Sandboxed pages run in an opaque origin, so their own scripts and
+        // tiles (offline maps, say) load as cross-origin requests.
+        headers.set('Access-Control-Allow-Origin', '*')
         return new Response(res.body, { status: res.status, headers })
       },
     },

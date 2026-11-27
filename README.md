@@ -115,6 +115,17 @@ introductions only.
 - A small [kiwix-serve](https://github.com/kiwix/kiwix-tools) container
   (`outpost-kiwix`) reads the files. Only Outpost talks to it, so it has no port
   of its own.
+- **Australian guides** (Sources › Australian guides, about 36 MB): ANZCOR first
+  aid guidelines and flowcharts (CPR, bleeding, burns, snake and spider bites,
+  marine stings and more), Red Cross RediPlan, NSW RFS and CFA bushfire plans,
+  Get Ready Queensland cards, and the Australian Dietary Guidelines. Their
+  publishers allow copies for your own use but not redistribution, so Outpost
+  doesn't ship them: your server downloads each from its publisher. PDFs are
+  kept as published; web pages keep their text in the reader's layout, with
+  their pictures and a link to the original. Saved guides are rechecked monthly.
+- **Be prepared** picks from Kiwix: the offline map of Australia (opens in its
+  own viewer), water treatment, food preparation, a post-disaster library and
+  MedlinePlus.
 - The reader cleans each page into Outpost's type, with contents, paper, sepia
   and night themes, five text sizes, saved pages and history. **Original
   layout** opens the page as the book made it, sandboxed.

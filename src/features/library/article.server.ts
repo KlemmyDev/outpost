@@ -87,12 +87,17 @@ export function buildToc(html: string): TocItem[] {
   return toc
 }
 
-export function cleanArticle(raw: string, contentId: string, path: string): CleanArticle {
-  const title = extractTitle(raw)
-  // Only the page body, when there is one.
-  const body = /<body[^>]*>([\s\S]*)<\/body>/i.exec(raw)?.[1] ?? raw
+/** What a link or picture inside a page should become. */
+export interface Rewriter {
+  /** A link: a reader path, an outside URL (marked external), or null to unlink it. */
+  link: (href: string) => { href: string; external?: boolean } | null
+  /** A picture: the URL to load it from, or null to drop it. */
+  image: (src: string) => string | null
+}
 
-  const html = sanitizeHtml(body, {
+/** The shared cleaning: allowed tags only, no styles or handlers, links and pictures rewritten. */
+export function sanitizePage(body: string, rw: Rewriter): string {
+  return sanitizeHtml(body, {
     allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'details', 'summary', 'figure', 'figcaption', 'section']),
     allowedAttributes: {
       '*': ['id', 'class', 'lang', 'dir', 'title'],
@@ -119,17 +124,14 @@ export function cleanArticle(raw: string, contentId: string, path: string): Clea
           delete next.rel
           if (href.startsWith('#')) next.href = href
           else {
-            const link = resolveLink(href, contentId, path)
-            if (link?.kind === 'internal') {
-              next.href =
-                link.contentId === contentId && link.rest === encodePath(path) && link.hash
-                  ? link.hash
-                  : `/library/read/${encodeURIComponent(link.contentId)}/${link.rest}${link.hash}`
-            } else if (link?.kind === 'external') {
-              next.href = link.href
-              next.target = '_blank'
-              next.rel = 'noopener noreferrer'
-              next.class = `${next.class ?? ''} oz-external`.trim()
+            const out = rw.link(href)
+            if (out) {
+              next.href = out.href
+              if (out.external) {
+                next.target = '_blank'
+                next.rel = 'noopener noreferrer'
+                next.class = `${next.class ?? ''} oz-external`.trim()
+              }
             }
           }
         }
@@ -137,11 +139,8 @@ export function cleanArticle(raw: string, contentId: string, path: string): Clea
           const src = attribs.src ?? ''
           delete next.src
           delete next.srcset
-          if (src.startsWith('data:image/')) next.src = src
-          else {
-            const link = resolveLink(src, contentId, path)
-            if (link?.kind === 'internal') next.src = `/api/library/raw/${encodeURIComponent(link.contentId)}/${link.rest}`
-          }
+          const out = src.startsWith('data:image/') ? src : rw.image(src)
+          if (out) next.src = out
           next.loading = 'lazy'
           next.decoding = 'async'
         }
@@ -159,8 +158,37 @@ export function cleanArticle(raw: string, contentId: string, path: string): Clea
       const list = cls.split(/\s+/)
       return DROP_CLASSES.some((c) => list.includes(c))
     },
+  }).trim()
+}
+
+export function plainText(html: string): string {
+  return stripTags(html)
+}
+
+export function cleanArticle(raw: string, contentId: string, path: string): CleanArticle {
+  const title = extractTitle(raw)
+  // Only the page body, when there is one.
+  const body = /<body[^>]*>([\s\S]*)<\/body>/i.exec(raw)?.[1] ?? raw
+
+  const html = sanitizePage(body, {
+    link: (href) => {
+      const link = resolveLink(href, contentId, path)
+      if (link?.kind === 'internal') {
+        return {
+          href:
+            link.contentId === contentId && link.rest === encodePath(path) && link.hash
+              ? link.hash
+              : `/library/read/${encodeURIComponent(link.contentId)}/${link.rest}${link.hash}`,
+        }
+      }
+      return link?.kind === 'external' ? { href: link.href, external: true } : null
+    },
+    image: (src) => {
+      const link = resolveLink(src, contentId, path)
+      return link?.kind === 'internal' ? `/api/library/raw/${encodeURIComponent(link.contentId)}/${link.rest}` : null
+    },
   })
 
   const words = stripTags(html).split(' ').filter(Boolean).length
-  return { title, html: html.trim(), toc: buildToc(html), words }
+  return { title, html, toc: buildToc(html), words }
 }
