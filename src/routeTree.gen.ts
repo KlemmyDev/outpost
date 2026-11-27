@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EmergencyRouteImport } from './routes/emergency'
 import { Route as FirstAidRouteImport } from './routes/first-aid'
+import { Route as InternetRouteImport } from './routes/internet'
 import { Route as LibraryRouteImport } from './routes/library'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as MessagesRouteImport } from './routes/messages'
@@ -38,6 +39,11 @@ const EmergencyRoute = EmergencyRouteImport.update({
 const FirstAidRoute = FirstAidRouteImport.update({
   id: '/first-aid',
   path: '/first-aid',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InternetRoute = InternetRouteImport.update({
+  id: '/internet',
+  path: '/internet',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LibraryRoute = LibraryRouteImport.update({
@@ -105,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/emergency': typeof EmergencyRoute
   '/first-aid': typeof FirstAidRoute
+  '/internet': typeof InternetRoute
   '/library': typeof LibraryRoute
   '/map': typeof MapRoute
   '/messages': typeof MessagesRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/emergency': typeof EmergencyRoute
   '/first-aid': typeof FirstAidRoute
+  '/internet': typeof InternetRoute
   '/library': typeof LibraryRoute
   '/map': typeof MapRoute
   '/messages': typeof MessagesRoute
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/emergency': typeof EmergencyRoute
   '/first-aid': typeof FirstAidRoute
+  '/internet': typeof InternetRoute
   '/library': typeof LibraryRoute
   '/map': typeof MapRoute
   '/messages': typeof MessagesRoute
@@ -159,6 +168,7 @@ export interface FileRouteTypes {
     | '/'
     | '/emergency'
     | '/first-aid'
+    | '/internet'
     | '/library'
     | '/map'
     | '/messages'
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/'
     | '/emergency'
     | '/first-aid'
+    | '/internet'
     | '/library'
     | '/map'
     | '/messages'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/'
     | '/emergency'
     | '/first-aid'
+    | '/internet'
     | '/library'
     | '/map'
     | '/messages'
@@ -211,6 +223,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EmergencyRoute: typeof EmergencyRoute
   FirstAidRoute: typeof FirstAidRoute
+  InternetRoute: typeof InternetRoute
   LibraryRoute: typeof LibraryRoute
   MapRoute: typeof MapRoute
   MessagesRoute: typeof MessagesRoute
@@ -246,6 +259,13 @@ declare module '@tanstack/react-router' {
       path: '/first-aid'
       fullPath: '/first-aid'
       preLoaderRoute: typeof FirstAidRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/internet': {
+      id: '/internet'
+      path: '/internet'
+      fullPath: '/internet'
+      preLoaderRoute: typeof InternetRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/library': {
@@ -339,6 +359,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EmergencyRoute: EmergencyRoute,
   FirstAidRoute: FirstAidRoute,
+  InternetRoute: InternetRoute,
   LibraryRoute: LibraryRoute,
   MapRoute: MapRoute,
   MessagesRoute: MessagesRoute,

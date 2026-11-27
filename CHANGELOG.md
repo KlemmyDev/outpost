@@ -8,6 +8,20 @@ CalVer (`YYYY.M.D`).
 
 ### Added
 
+- The Overview is now made of cards that each feature supplies, with details
+  that slide in when you tap one: Internet, Home server, Library, First aid,
+  Map, Messages, Power and Emergency.
+- Internet feature: checks once a minute whether the internet, DNS and GitHub
+  answer, with "Check again". It can be switched off, since it contacts
+  outside hosts.
+- Home server card with real figures: storage, memory (read from what's
+  actually available, not what Linux keeps as cache), processor load, uptime
+  and version.
+- Emergency card with Australian numbers (000, Poisons 13 11 26, SES 132 500,
+  healthdirect), tappable on phones.
+- On phones, the header keeps the logo and Settings on one row and the menu
+  scrolls sideways.
+
 - TanStack Start app with the Beacon design: Overview and Settings, with fonts
   bundled so it looks right offline.
 - Feature modules: Library, First aid, Map, Messages, Power and Emergency, each

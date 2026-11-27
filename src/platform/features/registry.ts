@@ -1,5 +1,6 @@
 import type { FeatureManifest } from './types'
 import { manifest as overview } from '#/features/overview/manifest'
+import { manifest as internet } from '#/features/internet/manifest'
 import { manifest as library } from '#/features/library/manifest'
 import { manifest as firstAid } from '#/features/first-aid/manifest'
 import { manifest as map } from '#/features/map/manifest'
@@ -15,6 +16,7 @@ import { manifest as settings } from '#/features/settings/manifest'
  */
 export const FEATURES: readonly FeatureManifest[] = [
   overview,
+  internet,
   library,
   firstAid,
   map,
