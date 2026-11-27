@@ -22,7 +22,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Link>
           ))}
         </nav>
-        <span style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
+        <span className="shell-actions">
           {platform.update.available && (
             <Link to="/settings" hash="updates" className="pill">
               <span className="dot" style={{ background: 'var(--ochre)' }} aria-hidden="true" />

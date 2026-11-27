@@ -49,6 +49,28 @@ Sub-pages go in `src/routes/<id>/…` and each uses the same `requireFeature`.
 API routes for a feature go in `src/routes/api/<id>/…` and should check
 `getPlatform().features.isEnabled('<id>')` and answer 404 when it's off.
 
+## A card on the Overview
+
+A feature can add a card to the Overview, with details that slide in when
+it's tapped:
+
+```
+src/features/<id>/overview.tsx   export const widget: OverviewWidget = { Card, Detail }
+```
+
+List it in `WIDGETS` in `src/platform/features/widgets.ts`. Cards use
+`SummaryCard` (a label, one answer, one visual, one line). Details go in the
+`Sheet` the Overview opens for you.
+
+If the card needs live data from the server:
+
+1. add its type to `WidgetData` in `src/platform/overview.types.ts`
+2. add a loader to `LOADERS` in `src/platform/server/widgets.server.ts`
+
+Loaders only run while the feature is on, and a failing loader gives the card
+`null` instead of breaking the Overview. The Internet feature is the example
+to copy: `internet.server.ts` does the work, `overview.tsx` shows it.
+
 ## Who decides what's on
 
 From highest priority to lowest:
