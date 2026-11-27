@@ -1,7 +1,10 @@
 import type { DatabaseSync } from 'node:sqlite'
 import { loadConfig, type Config } from './config.server'
 import { openDatabase } from './db.server'
+import { FEATURE_SERVERS } from './feature-servers.server'
 import { FeatureService } from './features.server'
+import { NotificationService } from './notifications.server'
+import { FeatureRuntime } from './runtime.server'
 import { SettingsStore } from './settings.server'
 import { UpdateService } from './updates.server'
 import { readVersion, type VersionInfo } from './version.server'
@@ -13,6 +16,8 @@ export interface Platform {
   settings: SettingsStore
   features: FeatureService
   updates: UpdateService
+  notifications: NotificationService
+  runtime: FeatureRuntime
   startedAt: number
 }
 
@@ -20,9 +25,9 @@ let platform: Platform | undefined
 
 /**
  * The server's shared services, created on first use (not at import, so the
- * build never opens a database or starts timers). Feature modules with a
- * server side will hang off this too: their migrations run here, and their
- * background jobs start and stop as the feature is switched on and off.
+ * build never opens a database or starts timers). Features with background
+ * work are started here, and started or stopped again whenever a feature is
+ * switched on or off.
  */
 export function getPlatform(): Platform {
   if (platform) return platform
@@ -30,10 +35,21 @@ export function getPlatform(): Platform {
   const version = readVersion()
   const db = openDatabase(config.dbPath)
   const settings = new SettingsStore(db)
-  const features = new FeatureService(settings, config.featuresEnv)
+  const notifications = new NotificationService(db, settings)
+  const runtime = new FeatureRuntime(FEATURE_SERVERS, (id) => ({
+    db,
+    settings,
+    notify: (n) => notifications.notify({ ...n, feature: id }),
+    log: (...args) => console.log(`[${id}]`, ...args),
+  }))
+  const features = new FeatureService(settings, config.featuresEnv, (list) => void runtime.sync(list))
   const updates = new UpdateService(config, settings, version)
   updates.start()
-  platform = { config, version, db, settings, features, updates, startedAt: Date.now() }
+  platform = { config, version, db, settings, features, updates, notifications, runtime, startedAt: Date.now() }
+  // Timers are unref'd, so nothing here holds the process open on shutdown.
+  // (No SIGTERM listener: adding one would stop Node exiting on `docker stop`.)
+  void runtime.sync(features.list())
+
   console.log(`[outpost] ${version.version}${version.release ? ` (${version.release})` : ''} ${version.commit.slice(0, 7) || 'local build'} · data in ${config.dataDir}`)
   return platform
 }

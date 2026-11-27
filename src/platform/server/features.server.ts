@@ -20,6 +20,8 @@ export class FeatureService {
   constructor(
     private readonly settings: SettingsStore,
     featuresEnv: string | undefined,
+    /** Called after any change, so the runtime can start or stop feature servers. */
+    private readonly onChange: (features: FeatureState[]) => void = () => {},
   ) {
     this.forced = parseFeatureEnv(featuresEnv)
   }
@@ -47,13 +49,17 @@ export class FeatureService {
       throw new FeatureError(`${feature.name} is set in the server's .env file (OUTPOST_FEATURES), so it can't be changed here.`, 409)
     }
     this.settings.setBool(KEY + id, enabled)
-    return this.list()
+    const list = this.list()
+    this.onChange(list)
+    return list
   }
 
   /** Back to the manifest default. */
   reset(id: string): FeatureState[] {
     this.settings.delete(KEY + id)
-    return this.list()
+    const list = this.list()
+    this.onChange(list)
+    return list
   }
 
   dependentsOf(id: string): string[] {

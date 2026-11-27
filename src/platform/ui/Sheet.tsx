@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 
 /**
  * The drill-in panel: slides in from the right with the details behind a
@@ -40,7 +41,10 @@ export function Sheet({ title, onClose, children }: { title: string; onClose: ()
     }
   }, [onClose])
 
-  return (
+  // Rendered into <body>: an ancestor with backdrop-filter (like the sticky
+  // header) would otherwise trap position: fixed inside itself. Sheets only
+  // open after a click, so this never runs during server rendering.
+  return createPortal(
     <div className="sheet-layer">
       <button type="button" className="sheet-backdrop" aria-label="Close details" tabIndex={-1} onClick={onClose} />
       <div ref={panel} className="sheet" role="dialog" aria-modal="true" aria-labelledby={titleId}>
@@ -52,6 +56,7 @@ export function Sheet({ title, onClose, children }: { title: string; onClose: ()
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

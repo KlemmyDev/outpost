@@ -86,11 +86,31 @@ A feature whose requirements are off is off too, all the way down a chain. The
 settings screen says which feature it's waiting for. Its own switch keeps
 your choice, so it comes back when the requirement does.
 
-## Server-side parts (next)
+## Background work
 
-Features with background work, such as the MeshCore radio bridge or reading
-WattsMyPower, will add a `server.ts` with `migrations` (applied in their own
-namespace by `migrate(db, '<id>', migrations)`) and `start()`/`stop()` hooks
-that the platform calls as the feature is switched on and off. The database
-already keeps a separate migration version per namespace, so features can be
-added and removed without renumbering anyone else's migrations.
+A feature that runs on its own (probes, a radio bridge, polling WattsMyPower)
+exports a `FeatureServer` from `src/features/<id>/server.ts` and lists it in
+`src/platform/server/feature-servers.server.ts`:
+
+```ts
+export const server: FeatureServer = {
+  migrations: MIGRATIONS,     // run in the "<id>" namespace before start()
+  start(ctx) { … },           // ctx: db, settings, notify, log
+  stop() { … },
+}
+```
+
+The platform starts it at boot if the feature is on, and starts or stops it
+the moment the feature is switched on or off in Settings. Each feature keeps
+its own migration version, so features can be added and removed without
+renumbering anyone else's. Keep timers `unref()`'d so they never hold the
+process open.
+
+`ctx.notify({ level, title, body })` sends a notification: it appears under
+the bell in the header and, for warnings and alerts by default, goes to ntfy
+and the webhook set in Settings › Notifications.
+
+The Internet feature is the full example: `server.ts` → `monitor.server.ts`
+(scheduling and the outage detector) → `probe.server.ts`,
+`speedtest.server.ts`, `store.server.ts`, with the pure logic in `analyze.ts`
+covered by `tests/internet-analyze.test.ts`.

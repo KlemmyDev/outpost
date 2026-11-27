@@ -14,6 +14,16 @@ export const CORE_MIGRATIONS: Migration[] = [
      value      TEXT NOT NULL,
      updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
    )`,
+  `CREATE TABLE notifications (
+     id      INTEGER PRIMARY KEY AUTOINCREMENT,
+     at      INTEGER NOT NULL,
+     feature TEXT NOT NULL,
+     level   TEXT NOT NULL,
+     title   TEXT NOT NULL,
+     body    TEXT NOT NULL DEFAULT '',
+     read_at INTEGER
+   );
+   CREATE INDEX notifications_at ON notifications (at)`,
 ]
 
 export function openDatabase(path: string): DatabaseSync {

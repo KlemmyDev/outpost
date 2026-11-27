@@ -1,4 +1,5 @@
 import { FeaturesPanel } from './FeaturesPanel'
+import { NotificationsPanel } from './NotificationsPanel'
 import { UpdatesPanel } from './UpdatesPanel'
 
 export function SettingsPage() {
@@ -6,8 +7,9 @@ export function SettingsPage() {
     <main className="page">
       <span className="eyebrow">Quartermaster</span>
       <h1>Settings</h1>
-      <p className="lead">Choose what Outpost does, and keep it up to date.</p>
+      <p className="lead">Choose what Outpost does, how it reaches you, and keep it up to date.</p>
       <UpdatesPanel />
+      <NotificationsPanel />
       <FeaturesPanel />
     </main>
   )

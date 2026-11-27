@@ -1,8 +1,8 @@
-import { checkInternet } from '#/features/internet/internet.server'
+import { getMonitor } from '#/features/internet/server'
 import type { WidgetData } from '#/platform/overview.types'
 import type { Platform } from './platform.server'
 
-type Loaders = { [K in keyof WidgetData]-?: (p: Platform) => Promise<NonNullable<WidgetData[K]>> }
+type Loaders = { [K in keyof WidgetData]-?: (p: Platform) => Promise<NonNullable<WidgetData[K]> | null> | NonNullable<WidgetData[K]> | null }
 
 /**
  * Server-side data for each feature's Overview card. A feature with live data
@@ -11,7 +11,7 @@ type Loaders = { [K in keyof WidgetData]-?: (p: Platform) => Promise<NonNullable
  * the Overview down.
  */
 const LOADERS: Loaders = {
-  internet: () => checkInternet(),
+  internet: () => getMonitor()?.status() ?? null,
 }
 
 export async function loadWidgets(p: Platform): Promise<WidgetData> {

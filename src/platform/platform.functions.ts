@@ -17,6 +17,7 @@ export const getPlatformInfo = createServerFn({ method: 'GET' }).handler(async (
       channel: updates.channel,
       latestVersion: updates.latest?.version ?? null,
     },
+    unreadNotifications: p.notifications.unreadCount(),
   }
 })
 

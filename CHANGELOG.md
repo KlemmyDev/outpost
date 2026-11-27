@@ -8,6 +8,22 @@ CalVer (`YYYY.M.D`).
 
 ### Added
 
+- Internet monitoring: a probe on a configurable interval (default every
+  minute) measures latency, jitter and packet loss to Cloudflare, Google DNS
+  and GitHub, plus DNS time. Scheduled speed tests (default every 6 hours,
+  skipped during outages) measure download and upload via Cloudflare.
+- Outage detection with hysteresis: 2 failed probes in a row is an outage, 3
+  poor ones is "struggling", 2 good ones ends it. A speed test below a set
+  share of your 7-day usual counts as slow. Events are kept and shown.
+- Internet dashboard: uptime timeline, latency and jitter, packet loss and
+  speed history charts with hover details and table views, an events list,
+  and Check now / Run speed test. Ranges of an hour, day, week or month.
+- Monitoring settings: probe interval, speed test schedule and size (with a
+  monthly data estimate), thresholds, notifications and history length.
+- Notifications for the whole platform: a bell in the header, plus optional
+  ntfy and webhook delivery with a minimum level and a test button.
+- Feature runtime: features with background work start and stop as they're
+  switched on and off, with their own migrations.
 - The Overview is now made of cards that each feature supplies, with details
   that slide in when you tap one: Internet, Home server, Library, First aid,
   Map, Messages, Power and Emergency.

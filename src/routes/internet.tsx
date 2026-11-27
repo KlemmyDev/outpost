@@ -1,21 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { widget } from '#/features/internet/overview'
+import { getInternetDashboard } from '#/features/internet/internet.functions'
+import { InternetDashboard } from '#/features/internet/Page'
+import { RANGES, type Range } from '#/features/internet/types'
 import { requireFeature } from '#/platform/features/guard'
-import { getOverviewData } from '#/platform/overview.functions'
 
 export const Route = createFileRoute('/internet')({
+  validateSearch: (search: Record<string, unknown>): { range: Range } => ({
+    range: (RANGES as readonly string[]).includes(String(search.range)) ? (search.range as Range) : '24h',
+  }),
   beforeLoad: requireFeature('internet'),
-  loader: () => getOverviewData(),
-  component: function InternetPage() {
+  loaderDeps: ({ search }) => ({ range: search.range }),
+  loader: ({ deps }) => getInternetDashboard({ data: { range: deps.range } }),
+  component: function InternetRoute() {
     const data = Route.useLoaderData()
-    const { feature } = Route.useRouteContext()
-    const Detail = widget.Detail!
-    return (
-      <main className="page" style={{ maxWidth: 720 }}>
-        <span className="eyebrow">{feature.code}</span>
-        <h1>{feature.name}</h1>
-        <Detail feature={feature} data={data.widgets} />
-      </main>
-    )
+    const { range } = Route.useSearch()
+    return <InternetDashboard data={data} range={range} />
   },
 })

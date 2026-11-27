@@ -1,6 +1,7 @@
 import { Link, useRouteContext, type LinkProps } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { Logo } from './Logo'
+import { NotificationBell } from './NotificationBell'
 
 /** The header and menu. The menu lists only the features that are switched on. */
 export function AppShell({ children }: { children: ReactNode }) {
@@ -29,6 +30,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               Update available
             </Link>
           )}
+          <NotificationBell unread={platform.unreadNotifications} />
           {settings && (
             <Link to="/settings" className="pill">
               {settings.name}

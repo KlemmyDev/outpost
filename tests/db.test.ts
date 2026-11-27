@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { migrate, openDatabase, schemaVersion } from '#/platform/server/db.server'
+import { CORE_MIGRATIONS, migrate, openDatabase, schemaVersion } from '#/platform/server/db.server'
 import { SettingsStore } from '#/platform/server/settings.server'
 import { FeatureService } from '#/platform/server/features.server'
 
@@ -16,17 +16,17 @@ describe('migrations', () => {
   it('applies core migrations once', () => {
     const path = join(dir, 'a.db')
     const db = openDatabase(path)
-    expect(schemaVersion(db, 'core')).toBe(1)
+    expect(schemaVersion(db, 'core')).toBe(CORE_MIGRATIONS.length)
     db.close()
     const again = openDatabase(path)
-    expect(schemaVersion(again, 'core')).toBe(1)
+    expect(schemaVersion(again, 'core')).toBe(CORE_MIGRATIONS.length)
   })
 
   it('keeps each namespace separate', () => {
     const db = openDatabase(join(dir, 'b.db'))
     migrate(db, 'library', ['CREATE TABLE library_items (id INTEGER PRIMARY KEY)', 'ALTER TABLE library_items ADD COLUMN title TEXT'])
     expect(schemaVersion(db, 'library')).toBe(2)
-    expect(schemaVersion(db, 'core')).toBe(1)
+    expect(schemaVersion(db, 'core')).toBe(CORE_MIGRATIONS.length)
   })
 
   it('rolls back a failing step and leaves the version alone', () => {

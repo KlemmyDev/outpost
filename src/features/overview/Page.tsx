@@ -9,9 +9,9 @@ const REFRESH_MS = 60_000
 
 /** One plain sentence about what matters most right now. */
 function summary(data: OverviewData): string {
-  const net = data.widgets.internet
-  if (net?.state === 'offline') return 'The internet is down. Everything in Outpost still works offline.'
-  if (net?.state === 'degraded') return 'The internet is patchy right now.'
+  const net = data.widgets.internet?.latest
+  if (net?.health === 'offline') return 'The internet is down. Everything in Outpost still works offline.'
+  if (net?.health === 'degraded') return 'The internet is struggling right now.'
   if (data.server.updateAvailable && data.server.latestVersion) return `Version ${data.server.latestVersion} is ready to install.`
   return 'Everything is running normally.'
 }
