@@ -32,6 +32,7 @@ import { Route as ApiUpdatesIndexRouteImport } from './routes/api/updates/index'
 import { Route as ApiUpdatesChannelRouteImport } from './routes/api/updates/channel'
 import { Route as ApiUpdatesCheckRouteImport } from './routes/api/updates/check'
 import { Route as ApiUpdatesInstallRouteImport } from './routes/api/updates/install'
+import { Route as LibraryTopicTopicRouteImport } from './routes/library/topic.$topic'
 import { Route as ApiLibraryGuidesSplatRouteImport } from './routes/api/library/guides.$'
 import { Route as ApiLibraryIconUuidRouteImport } from './routes/api/library/icon.$uuid'
 import { Route as LibraryReadBookSplatRouteImport } from './routes/library/read.$book.$'
@@ -152,6 +153,11 @@ const ApiUpdatesInstallRoute = ApiUpdatesInstallRouteImport.update({
   path: '/api/updates/install',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LibraryTopicTopicRoute = LibraryTopicTopicRouteImport.update({
+  id: '/topic/$topic',
+  path: '/topic/$topic',
+  getParentRoute: () => LibraryRoute,
+} as any)
 const ApiLibraryGuidesSplatRoute = ApiLibraryGuidesSplatRouteImport.update({
   id: '/api/library/guides/$',
   path: '/api/library/guides/$',
@@ -195,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/api/updates/channel': typeof ApiUpdatesChannelRoute
   '/api/updates/check': typeof ApiUpdatesCheckRoute
   '/api/updates/install': typeof ApiUpdatesInstallRoute
+  '/library/topic/$topic': typeof LibraryTopicTopicRoute
   '/api/features/': typeof ApiFeaturesIndexRoute
   '/api/updates/': typeof ApiUpdatesIndexRoute
   '/api/library/guides/$': typeof ApiLibraryGuidesSplatRoute
@@ -222,6 +229,7 @@ export interface FileRoutesByTo {
   '/api/updates/channel': typeof ApiUpdatesChannelRoute
   '/api/updates/check': typeof ApiUpdatesCheckRoute
   '/api/updates/install': typeof ApiUpdatesInstallRoute
+  '/library/topic/$topic': typeof LibraryTopicTopicRoute
   '/api/features': typeof ApiFeaturesIndexRoute
   '/api/updates': typeof ApiUpdatesIndexRoute
   '/api/library/guides/$': typeof ApiLibraryGuidesSplatRoute
@@ -252,6 +260,7 @@ export interface FileRoutesById {
   '/api/updates/channel': typeof ApiUpdatesChannelRoute
   '/api/updates/check': typeof ApiUpdatesCheckRoute
   '/api/updates/install': typeof ApiUpdatesInstallRoute
+  '/library/topic/$topic': typeof LibraryTopicTopicRoute
   '/api/features/': typeof ApiFeaturesIndexRoute
   '/api/updates/': typeof ApiUpdatesIndexRoute
   '/api/library/guides/$': typeof ApiLibraryGuidesSplatRoute
@@ -283,6 +292,7 @@ export interface FileRouteTypes {
     | '/api/updates/channel'
     | '/api/updates/check'
     | '/api/updates/install'
+    | '/library/topic/$topic'
     | '/api/features/'
     | '/api/updates/'
     | '/api/library/guides/$'
@@ -310,6 +320,7 @@ export interface FileRouteTypes {
     | '/api/updates/channel'
     | '/api/updates/check'
     | '/api/updates/install'
+    | '/library/topic/$topic'
     | '/api/features'
     | '/api/updates'
     | '/api/library/guides/$'
@@ -339,6 +350,7 @@ export interface FileRouteTypes {
     | '/api/updates/channel'
     | '/api/updates/check'
     | '/api/updates/install'
+    | '/library/topic/$topic'
     | '/api/features/'
     | '/api/updates/'
     | '/api/library/guides/$'
@@ -533,6 +545,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiUpdatesInstallRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/library/topic/$topic': {
+      id: '/library/topic/$topic'
+      path: '/topic/$topic'
+      fullPath: '/library/topic/$topic'
+      preLoaderRoute: typeof LibraryTopicTopicRouteImport
+      parentRoute: typeof LibraryRoute
+    }
     '/api/library/guides/$': {
       id: '/api/library/guides/$'
       path: '/api/library/guides/$'
@@ -583,6 +602,7 @@ interface LibraryRouteChildren {
   LibrarySearchRoute: typeof LibrarySearchRoute
   LibrarySourcesRoute: typeof LibrarySourcesRoute
   LibraryIndexRoute: typeof LibraryIndexRoute
+  LibraryTopicTopicRoute: typeof LibraryTopicTopicRoute
   LibraryReadBookSplatRoute: typeof LibraryReadBookSplatRoute
 }
 
@@ -591,6 +611,7 @@ const LibraryRouteChildren: LibraryRouteChildren = {
   LibrarySearchRoute: LibrarySearchRoute,
   LibrarySourcesRoute: LibrarySourcesRoute,
   LibraryIndexRoute: LibraryIndexRoute,
+  LibraryTopicTopicRoute: LibraryTopicTopicRoute,
   LibraryReadBookSplatRoute: LibraryReadBookSplatRoute,
 }
 

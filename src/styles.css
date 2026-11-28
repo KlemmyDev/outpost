@@ -4856,3 +4856,461 @@ a.em-tile:hover {
     padding-left: 0;
   }
 }
+
+/* Library hub: everything on the shelves, by topic and by the day. */
+
+.t-health { --t: #3a6f59; }
+.t-food { --t: var(--ochre); }
+.t-water { --t: var(--dusk); }
+.t-shelter { --t: #a44a2c; }
+.t-power { --t: #8a6a12; }
+.t-growing { --t: var(--eucalypt); }
+.t-emergencies { --t: var(--flare); }
+.t-reference { --t: var(--stone); }
+
+.hub-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hub-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 6px 14px 6px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  font-size: 14px;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.hub-chip svg {
+  color: var(--t, var(--stone));
+}
+
+.hub-chip:hover {
+  border-color: var(--t, var(--stone));
+  background: color-mix(in srgb, var(--t, var(--stone)) 6%, var(--paper));
+}
+
+.hub-chip.book {
+  padding-left: 7px;
+}
+
+.hub-chip.book .book-icon {
+  border-radius: 6px;
+}
+
+/* Cards for pages from any book */
+
+.hub-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--paper);
+  overflow: hidden;
+  text-decoration: none;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+
+a.hub-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(31, 36, 33, 0.09);
+}
+
+a.hub-card:hover strong {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.hub-cover {
+  position: relative;
+  display: block;
+  flex: none;
+  aspect-ratio: 16 / 10;
+  background: #eeebe3;
+  overflow: hidden;
+}
+
+.hub-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hub-cover.plain {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 14px 16px;
+}
+
+.hub-cover-letter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -56%);
+  font-family: var(--font-display);
+  font-size: 72px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  opacity: 0.85;
+}
+
+.hub-cover-book {
+  position: relative;
+  max-width: 100%;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0.8;
+}
+
+.hub-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px 16px;
+  min-width: 0;
+}
+
+.hub-card-book {
+  color: var(--stone);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hub-card strong {
+  font-family: var(--font-display);
+  font-size: 19px;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hub-card-excerpt {
+  color: var(--stone);
+  font-size: 14px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hub-card.lg .hub-cover {
+  aspect-ratio: 16 / 9;
+}
+
+.hub-card.lg .hub-card-body {
+  gap: 8px;
+  padding: 20px 22px 22px;
+}
+
+.hub-card.lg strong {
+  font-size: clamp(24px, 3vw, 32px);
+  letter-spacing: -0.03em;
+}
+
+.hub-card.lg .hub-card-excerpt {
+  font-size: 16px;
+  -webkit-line-clamp: 4;
+}
+
+.hub-card.sm .hub-card-body {
+  padding: 12px 14px 14px;
+  gap: 4px;
+}
+
+.hub-card.sm strong {
+  font-size: 16px;
+}
+
+.hub-card.sm .hub-cover-letter {
+  font-size: 48px;
+}
+
+/* Today in the library: one big pick and four small ones */
+
+.hub-today {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 14px;
+}
+
+.hub-today-side {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-content: start;
+}
+
+.hub-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+/* Topic tiles */
+
+.hub-topics {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 14px;
+}
+
+.hub-topic {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--paper);
+  overflow: hidden;
+  text-decoration: none;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+
+.hub-topic:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(31, 36, 33, 0.09);
+}
+
+.hub-topic-pics {
+  display: flex;
+  gap: 2px;
+  height: 104px;
+  background: color-mix(in srgb, var(--t) 12%, var(--paper));
+}
+
+.hub-topic-pics img {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hub-topic-glyph {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  color: var(--t);
+}
+
+.hub-topic-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px 16px;
+}
+
+.hub-topic-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hub-topic-name svg {
+  flex: none;
+  color: var(--t);
+}
+
+.hub-topic-name strong {
+  font-family: var(--font-display);
+  font-size: 18px;
+  letter-spacing: -0.02em;
+}
+
+.hub-topic-text .muted {
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.hub-topic-count {
+  margin-top: 2px;
+  color: var(--t);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.hub-topic.empty .hub-topic-count {
+  color: var(--stone);
+  font-weight: 500;
+}
+
+/* A topic's own page */
+
+.hub-topic-head {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.hub-topic-head h1 {
+  margin: 0;
+}
+
+.hub-topic-head .lead {
+  margin: 6px 0 0;
+}
+
+.hub-topic-badge {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--t) 13%, var(--paper));
+  color: var(--t);
+}
+
+.hub-topic-lead .hub-card.lg {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+}
+
+.hub-topic-lead .hub-card.lg .hub-cover {
+  aspect-ratio: auto;
+  min-height: 260px;
+}
+
+.hub-topic-lead .hub-card.lg .hub-card-body {
+  justify-content: center;
+}
+
+/* Waiting for cards */
+
+.hub-card.skeleton .hub-cover,
+.hub-card.skeleton .sk-line {
+  background: linear-gradient(90deg, #eeebe3 0%, #f6f4ef 50%, #eeebe3 100%);
+  background-size: 200% 100%;
+  animation: hub-shimmer 1.4s ease-in-out infinite;
+}
+
+.sk-line {
+  display: block;
+  height: 12px;
+  border-radius: 6px;
+}
+
+.sk-line.short {
+  width: 40%;
+}
+
+@keyframes hub-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hub-card.skeleton .hub-cover,
+  .hub-card.skeleton .sk-line {
+    animation: none;
+  }
+}
+
+@media (max-width: 860px) {
+  .hub-today {
+    grid-template-columns: 1fr;
+  }
+
+  .hub-topic-lead .hub-card.lg {
+    display: flex;
+  }
+
+  .hub-topic-lead .hub-card.lg .hub-cover {
+    aspect-ratio: 16 / 9;
+    min-height: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .hub-today-side {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .hub-topic-head {
+    align-items: flex-start;
+  }
+
+  .hub-topic-badge {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+  }
+}
+
+/* With only one or two smaller picks, they stack beside the big one instead of leaving a gap. */
+.hub-today-side.n1,
+.hub-today-side.n2 {
+  grid-template-columns: 1fr;
+  grid-auto-rows: 1fr;
+  align-content: stretch;
+}
+
+.hub-today-side.n1 .hub-card,
+.hub-today-side.n2 .hub-card {
+  flex-direction: row;
+}
+
+.hub-today-side.n1 .hub-cover,
+.hub-today-side.n2 .hub-cover {
+  width: 44%;
+  aspect-ratio: auto;
+}
+
+.hub-cover.fit {
+  background: #fff;
+}
+
+.hub-cover.fit img {
+  object-fit: contain;
+  padding: 8px;
+}
+
+@media (max-width: 520px) {
+  .lib-hero .hub-chips {
+    flex-wrap: nowrap;
+    margin: 0 -16px;
+    padding: 0 16px 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .lib-hero .hub-chip {
+    flex: none;
+  }
+
+  .hub-hint {
+    display: none;
+  }
+}

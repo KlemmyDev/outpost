@@ -8,6 +8,14 @@ CalVer (`YYYY.M.D`).
 
 ### Added
 
+- Library hub: the Library's front page now brings every book together.
+  Today in the library shows five pages from across the shelves with their
+  pictures and opening lines (the same all day, or shuffle for more). Eight
+  topics (health and first aid, food, water, shelter, power and repairs,
+  growing, emergencies, reference) each gather the best pages for their
+  questions from every book, with the Australian guides first. Continue
+  reading shows covers too. Previews are kept in the database, since a book's
+  pages never change.
 - Emergency: official warnings near home from BOM (every state), the
   Queensland Fire Department, NSW RFS and VicEmergency, with Australian Warning
   System levels, distance from Home, and notifications for new Watch and Act

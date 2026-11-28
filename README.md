@@ -108,6 +108,12 @@ iFixit, Wiktionary, and anything else in
 Sources**. Most come in three sizes: with pictures, text only, or
 introductions only.
 
+- **The hub** (the Library's front page) reads across every book at once:
+  *Today in the library* picks five pages with their pictures and first lines
+  each day, and eight topics (health, food, water, shelter, power and repairs,
+  growing, emergencies, reference) gather the best page for each of their
+  questions from whatever's installed. Topics with nothing yet suggest what to
+  download.
 - Downloads run two at a time (1 to 4, set on the Sources screen), resume after a dropped connection or a restart,
   and are checked against Kiwix's SHA-256 before they're added.
 - Books live in `data/library` as `.zim` files. You can also copy `.zim` files

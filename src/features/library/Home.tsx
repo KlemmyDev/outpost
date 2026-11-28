@@ -1,8 +1,10 @@
 import { Link, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { formatBytes } from '#/platform/ui/format'
 import { ago, articles, count, monthYear, readHref } from './format'
-import { randomArticle } from './library.functions'
+import { TOPICS, type TopicSummary } from './hub'
+import { getHubFeed, getTopicSummaries, randomArticle, type HubFeed } from './library.functions'
+import { CardSkeleton, PreviewCard, TopicIcon, TopicTile } from './ui/HubCards'
 import { BookIcon } from './ui/BookIcon'
 import { DownloadBar } from './ui/DownloadBar'
 import { ReadLink } from './ui/ReadLink'
@@ -10,8 +12,34 @@ import { SearchBox } from './ui/SearchBox'
 import { GUIDES_BOOK } from './guides/catalog'
 import { flavourLabel, isAppBook, type Book, type LibraryHome } from './types'
 
-export function LibraryHomePage({ data }: { data: LibraryHome }) {
+export function LibraryHomePage({ data, feed: initialFeed }: { data: LibraryHome; feed: HubFeed | null }) {
   const { books, history, saved, downloads, online } = data
+  const [feed, setFeed] = useState(initialFeed)
+  const [shuffling, setShuffling] = useState(false)
+  const [topics, setTopics] = useState<TopicSummary[] | null>(null)
+  const readable = books.filter((b) => !isAppBook(b))
+  useEffect(() => {
+    if (!online || readable.length === 0) return
+    let live = true
+    void getTopicSummaries()
+      .then((t) => live && setTopics(t))
+      .catch(() => live && setTopics([]))
+    if (!initialFeed) void getHubFeed({ data: {} }).then((f) => live && setFeed(f)).catch(() => {})
+    return () => {
+      live = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [online, readable.length])
+  async function shuffle() {
+    setShuffling(true)
+    try {
+      setFeed(await getHubFeed({ data: { fresh: true } }))
+    } finally {
+      setShuffling(false)
+    }
+  }
+  const picks = feed?.discover.items ?? []
+  const recent = new Map((feed?.recent ?? []).map((p) => [`${p.contentId}/${p.path}`, p]))
   const articles = books.reduce((n, b) => n + b.articleCount, 0)
   const bytes = books.reduce((n, b) => n + (b.sizeBytes ?? 0), 0)
   const active = downloads.filter((d) => d.state === 'downloading' || d.state === 'verifying' || d.state === 'queued')
@@ -27,6 +55,16 @@ export function LibraryHomePage({ data }: { data: LibraryHome }) {
             : 'Wikipedia, medical references, guides and recipes, stored on this server so they work with no internet.'}
         </p>
         {online && books.length > 0 && <SearchBox large placeholder={`Search ${books.length === 1 ? books[0]!.title : 'every book'}`} />}
+        {online && readable.length > 0 && (
+          <nav className="hub-chips" aria-label="Topics">
+            {TOPICS.map((t) => (
+              <Link key={t.id} to="/library/topic/$topic" params={{ topic: t.id }} className={`hub-chip t-${t.id}`}>
+                <TopicIcon name={t.icon} size={16} />
+                {t.title}
+              </Link>
+            ))}
+          </nav>
+        )}
       </header>
 
       {!online && (
@@ -72,6 +110,56 @@ export function LibraryHomePage({ data }: { data: LibraryHome }) {
         </section>
       )}
 
+      {online && readable.length > 0 && (
+        <section aria-labelledby="today-title" className="lib-section">
+          <div className="section-head">
+            <h2 id="today-title">Today in the library</h2>
+            <button type="button" className="link-btn" onClick={shuffle} disabled={shuffling}>
+              {shuffling ? 'Finding more…' : 'Shuffle'}
+            </button>
+          </div>
+          {feed === null || shuffling ? (
+            <div className="hub-today">
+              <CardSkeleton size="lg" />
+              <div className="hub-today-side">
+                {[0, 1, 2, 3].map((i) => (
+                  <CardSkeleton key={i} size="sm" />
+                ))}
+              </div>
+            </div>
+          ) : picks.length === 0 ? (
+            <p className="muted">Nothing to pick from yet. Books with articles show their pages here, a few each day.</p>
+          ) : (
+            <div className="hub-today">
+              <PreviewCard p={picks[0]!} size="lg" />
+              {picks.length > 1 && (
+                <div className={`hub-today-side n${Math.min(picks.length - 1, 4)}`}>
+                  {picks.slice(1, 5).map((p) => (
+                    <PreviewCard key={`${p.contentId}/${p.path}`} p={p} size="sm" />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </section>
+      )}
+
+      {online && readable.length > 0 && (
+        <section aria-labelledby="topics-title" className="lib-section">
+          <div className="section-head">
+            <h2 id="topics-title">Explore by topic</h2>
+            <span className="muted hub-hint" style={{ fontSize: 14 }}>
+              From every book at once
+            </span>
+          </div>
+          <div className="hub-topics">
+            {TOPICS.map((t) => (
+              <TopicTile key={t.id} t={t} s={topics === null ? null : (topics.find((x) => x.id === t.id) ?? { id: t.id, count: 0, images: [] })} />
+            ))}
+          </div>
+        </section>
+      )}
+
       {history.length > 0 && (
         <section aria-labelledby="continue-title" className="lib-section">
           <div className="section-head">
@@ -80,14 +168,19 @@ export function LibraryHomePage({ data }: { data: LibraryHome }) {
               History ›
             </Link>
           </div>
-          <div className="lib-recent">
-            {history.slice(0, 4).map((h) => (
-              <ReadLink key={`${h.contentId}/${h.path}`} book={h.contentId} path={h.path} className="lib-recent-card">
-                <span className="mono">{h.bookTitle.toUpperCase()}</span>
-                <strong>{h.title}</strong>
-                <span className="muted">{ago(h.visitedAt)}</span>
-              </ReadLink>
-            ))}
+          <div className="hub-row">
+            {history.slice(0, 4).map((h) => {
+              const p = recent.get(`${h.contentId}/${h.path}`)
+              return p ? (
+                <PreviewCard key={`${h.contentId}/${h.path}`} p={{ ...p, title: h.title }} size="sm" />
+              ) : (
+                <ReadLink key={`${h.contentId}/${h.path}`} book={h.contentId} path={h.path} className="lib-recent-card">
+                  <span className="mono">{h.bookTitle.toUpperCase()}</span>
+                  <strong>{h.title}</strong>
+                  <span className="muted">{ago(h.visitedAt)}</span>
+                </ReadLink>
+              )
+            })}
           </div>
         </section>
       )}
@@ -95,7 +188,7 @@ export function LibraryHomePage({ data }: { data: LibraryHome }) {
       {books.length > 0 && (
         <section aria-labelledby="books-title" className="lib-section">
           <div className="section-head">
-            <h2 id="books-title">Your books</h2>
+            <h2 id="books-title">Your collections</h2>
             <Link to="/library/sources" className="muted">
               Add books ›
             </Link>

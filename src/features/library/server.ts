@@ -5,6 +5,7 @@ import type { FeatureServer } from '#/platform/server/runtime.server'
 import { Catalog } from './catalog.server'
 import { DEFAULT_PARALLEL, DownloadManager } from './downloads.server'
 import { GuideManager } from './guides/guides.server'
+import { Hub } from './hub.server'
 import { KiwixClient } from './kiwix.server'
 import { LibraryStore, MIGRATIONS } from './store.server'
 import type { Book, LibraryStatus } from './types'
@@ -16,6 +17,8 @@ import type { Book, LibraryStatus } from './types'
  */
 export class Library {
   readonly catalog = new Catalog()
+  /** The hub's topics and picks; set once the Library starts. */
+  hub!: Hub
   private bookCache: { at: number; books: Book[] } | null = null
   /** Books just removed, hidden until Kiwix notices the file has gone. */
   private removed = new Map<string, number>()
@@ -57,8 +60,38 @@ export class Library {
   async removeBook(contentId: string): Promise<void> {
     await this.downloads.remove(contentId)
     this.store.retireFinished(contentId)
+    this.store.forgetPreviews(contentId)
     this.removed.set(contentId, Date.now() + 60_000)
     this.bookCache = null
+  }
+
+  /**
+   * A page from a book, following Kiwix's redirects. Website copies (zimit)
+   * name folder pages with a trailing slash, which readers' addresses lose, so
+   * a missing page is tried again with one; the page is then read as that
+   * path, so its relative links resolve from the folder.
+   */
+  async readPage(
+    contentId: string,
+    path: string,
+  ): Promise<{ kind: 'page'; path: string; body: string } | { kind: 'redirect'; path: string } | { kind: 'file'; path: string; pdf: boolean } | { kind: 'missing'; path: string; status: number }> {
+    let page = await this.kiwix.page(contentId, path)
+    if (page.status === 404 && path && !path.endsWith('/')) {
+      const withSlash = await this.kiwix.page(contentId, `${path}/`)
+      if (withSlash.status !== 404) {
+        page = withSlash
+        path = `${path}/`
+      }
+    }
+    if (page.status >= 300 && page.status < 400 && page.location !== null) {
+      // A redirect to the same page with a slash added is handled here; don't loop on it.
+      if (page.location.replace(/\/$/, '') !== path.replace(/\/$/, '')) return { kind: 'redirect', path: page.location }
+      path = page.location
+      page = await this.kiwix.page(contentId, path)
+    }
+    if (page.body) return { kind: 'page', path, body: page.body }
+    if (page.status >= 200 && page.status < 300) return { kind: 'file', path, pdf: page.contentType.includes('pdf') }
+    return { kind: 'missing', path, status: page.status }
   }
 
   async book(contentId: string): Promise<Book | null> {
@@ -114,6 +147,7 @@ export const server: FeatureServer = {
     const downloads = new DownloadManager(store, dir, ctx, fetch, Number(ctx.settings.get(PARALLEL_KEY) ?? DEFAULT_PARALLEL))
     const guides = new GuideManager(ctx.db, join(dir, 'guides'), ctx)
     library = new Library(new KiwixClient(process.env.KIWIX_URL || 'http://kiwix:8080'), store, downloads, guides)
+    library.hub = new Hub(library, ctx.db, ctx.settings, join(dir, 'guides'))
     await downloads.start()
     await guides.start()
   },

@@ -5,6 +5,13 @@ import { GUIDES_BOOK, GUIDES_TITLE, type GuidesData } from './guides/catalog'
 import { DEFAULT_PARALLEL } from './downloads.server'
 import { getLibraryReady, PARALLEL_KEY } from './server'
 import { isAppBook } from './types'
+import type { Discover, Preview, TopicReads, TopicSummary } from './hub'
+
+export interface HubFeed {
+  discover: Discover
+  /** Cards for the last few pages read. */
+  recent: Preview[]
+}
 
 const rawUrl = (contentId: string, path: string) => `/api/library/raw/${encodeURIComponent(contentId)}/${path.split('/').map(encodeURIComponent).join('/')}`
 import type { ArticleResult, Book, CatalogEntry, CatalogPage, LibraryHome, Recommendation, SearchGroup, SearchResults, SourcesData, Suggestion } from './types'
@@ -100,29 +107,11 @@ export const getArticle = createServerFn({ method: 'GET' })
       const path = main.location ?? 'index.html'
       return { kind: 'file', url: rawUrl(book.contentId, path), title: book.title, bookTitle: book.title }
     }
-    let page = await library.kiwix.page(book.contentId, data.path)
-    // Website copies (zimit) name folder pages with a trailing slash, which the
-    // reader's address loses. Try again with it, and read the page as that path
-    // so its relative links resolve from the folder.
-    if (page.status === 404 && data.path && !data.path.endsWith('/')) {
-      const withSlash = await library.kiwix.page(book.contentId, `${data.path}/`)
-      if (withSlash.status !== 404) {
-        page = withSlash
-        data.path = `${data.path}/`
-      }
-    }
-    if (page.status >= 300 && page.status < 400 && page.location !== null) {
-      // A redirect to the same page with a slash added is handled above; don't loop on it.
-      if (page.location.replace(/\/$/, '') !== data.path.replace(/\/$/, '')) return { kind: 'redirect', path: page.location }
-      const loc = page.location
-      page = await library.kiwix.page(book.contentId, loc)
-      data.path = loc
-    }
-    if (page.status === 404) return { kind: 'missing', contentId: book.contentId, path: data.path, reason: `${book.title} has no page called “${data.path}”.` }
-    if (!page.body) {
-      if (page.status >= 200 && page.status < 300) return { kind: 'file', url: rawUrl(book.contentId, data.path), pdf: page.contentType.includes('pdf') }
-      return { kind: 'missing', contentId: book.contentId, path: data.path, reason: `The library server answered ${page.status}.` }
-    }
+    const page = await library.readPage(book.contentId, data.path)
+    if (page.kind === 'redirect') return { kind: 'redirect', path: page.path }
+    data.path = page.path
+    if (page.kind === 'missing') return { kind: 'missing', contentId: book.contentId, path: data.path, reason: page.status === 404 ? `${book.title} has no page called “${data.path}”.` : `The library server answered ${page.status}.` }
+    if (page.kind === 'file') return { kind: 'file', url: rawUrl(book.contentId, data.path), pdf: page.pdf }
     const article = cleanArticle(page.body, book.contentId, data.path)
     const title = article.title || data.path.replace(/_/g, ' ') || book.title
     library.store.visit({ contentId: book.contentId, path: data.path, title, bookTitle: book.title })
@@ -311,3 +300,30 @@ export const refreshGuides = createServerFn({ method: 'POST' }).handler(async ()
   library.guides.refreshAll()
   return library.guides.list()
 })
+
+/** The hub's picks for today, and cards for what was being read. */
+export const getHubFeed = createServerFn({ method: 'GET' })
+  .validator((d: { fresh?: boolean } | undefined) => ({ fresh: d?.fresh === true }))
+  .handler(async ({ data }): Promise<HubFeed> => {
+    const library = await lib()
+    const { online } = await library.booksOrOffline()
+    if (!online) return { discover: { day: '', items: [] }, recent: [] }
+    const [discover, recent] = await Promise.all([
+      library.hub.discover(data.fresh).catch(() => ({ day: '', items: [] })),
+      library.hub.previews(library.store.history(4).map((h) => ({ contentId: h.contentId, path: h.path }))).catch(() => []),
+    ])
+    return { discover, recent }
+  })
+
+export const getTopicSummaries = createServerFn({ method: 'GET' }).handler(async (): Promise<TopicSummary[]> => {
+  const library = await lib()
+  const { online } = await library.booksOrOffline()
+  return online ? library.hub.summaries() : []
+})
+
+export const getTopicReads = createServerFn({ method: 'GET' })
+  .validator((d: { id: string }) => ({ id: str(d?.id, 40) }))
+  .handler(async ({ data }): Promise<TopicReads | null> => {
+    const library = await lib()
+    return library.hub.topic(data.id)
+  })

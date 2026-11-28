@@ -48,6 +48,17 @@ export const MIGRATIONS: Migration[] = [
      fetched_at    INTEGER NOT NULL,
      checked_at    INTEGER NOT NULL
    )`,
+  // Cards for the hub: a page's title, opening lines and picture. A book's pages never change, so these are kept.
+  `CREATE TABLE library_previews (
+     content_id TEXT NOT NULL,
+     path       TEXT NOT NULL,
+     title      TEXT NOT NULL,
+     excerpt    TEXT NOT NULL,
+     image      TEXT,
+     pdf        INTEGER NOT NULL DEFAULT 0,
+     made_at    INTEGER NOT NULL,
+     PRIMARY KEY (content_id, path)
+   )`,
 ]
 
 /** History keeps this many pages, newest first. */
@@ -156,6 +167,10 @@ export class LibraryStore {
   /** Once a book is removed, its finished download stops being listed. */
   retireFinished(contentId: string): void {
     this.db.prepare(`UPDATE library_downloads SET state = 'cancelled', updated_at = ? WHERE content_id = ? AND state = 'done'`).run(Date.now(), contentId)
+  }
+
+  forgetPreviews(contentId: string): void {
+    this.db.prepare('DELETE FROM library_previews WHERE content_id = ?').run(contentId)
   }
 
   /** After a restart, anything that was mid-download goes back in the queue. */
