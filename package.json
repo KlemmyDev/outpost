@@ -1,6 +1,6 @@
 {
   "name": "outpost",
-  "version": "2026.11.27",
+  "version": "2026.11.28",
   "private": true,
   "description": "Off-grid Unified Tools for Preparedness, Orientation, Survival & Telecomms. A self-hosted offline library, mesh comms and home server HQ.",
   "type": "module",
